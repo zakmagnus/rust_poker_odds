@@ -1,0 +1,8 @@
+[package]
+
+name = "poker_hands"
+version = "0.0.1"
+authors = [" <zakmagnus@gmail.com>"]
+
+[dependencies.cards]
+path = "../cards"

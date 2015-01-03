@@ -1,11 +1,11 @@
-enum Suit {
+pub enum Suit {
     Spades,
     Hearts,
     Clubs,
     Diamonds,
 }
 
-enum Rank {
+pub enum Rank {
     Ace,
     Two,
     Three,
@@ -21,4 +21,4 @@ enum Rank {
     King,
 }
 
-struct Card { suit: Suit, rank: Rank }
+pub struct Card { suit: Suit, rank: Rank }
