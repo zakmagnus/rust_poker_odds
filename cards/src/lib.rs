@@ -11,7 +11,7 @@ pub enum Suit {
     Diamonds,
 }
 
-#[deriving(Eq, Ord)]
+#[deriving(Eq, Ord, Clone)]
 pub enum Rank {
     Ace,
     King,

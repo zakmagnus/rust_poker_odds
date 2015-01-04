@@ -54,29 +54,78 @@ impl PartialEq for Hand {
 }
 
 fn cmp_same_type_hand(this: & Hand, other: & Hand) -> Ordering {
+    // capacity = max number of comparables = hand size
+    let mut this_comparable_buffer = Vec::with_capacity(5);
+    let mut other_comparable_buffer = Vec::with_capacity(5);
+
     match (this, other) {
-        (&Hand::HiCard{ranks: ref these_ranks}, &Hand::HiCard{ranks: ref other_ranks}) =>
-            cmp_ordered_ranks(these_ranks.as_slice(), other_ranks.as_slice()),
+        (&Hand::HiCard{ranks: ref these_ranks}, &Hand::HiCard{ranks: ref other_ranks}) => {
+            this_comparable_buffer.push_all(these_ranks);
+            other_comparable_buffer.push_all(other_ranks);
+        },
         (&Hand::Pair{rank: ref this_rank, kickers: ref these_kickers}, &Hand::Pair{rank: ref other_rank, kickers: ref other_kickers}) => {
-            let rank_cmp = this_rank.cmp(other_rank);
-            if rank_cmp != Ordering::Equal {
-                return rank_cmp;
-            }
-            cmp_ordered_ranks(these_kickers.as_slice(), other_kickers.as_slice())
+            assert_eq!(3, these_kickers.len());
+            assert_eq!(3, other_kickers.len());
+
+            this_comparable_buffer.push(this_rank.clone());
+            other_comparable_buffer.push(other_rank.clone());
+
+            this_comparable_buffer.push_all(these_kickers);
+            other_comparable_buffer.push_all(other_kickers);
+        },
+        (&Hand::TwoPair{hi_rank: ref this_hi_rank, lo_rank: ref this_lo_rank, kicker: ref this_kicker}, &Hand::TwoPair{hi_rank: ref other_hi_rank, lo_rank: ref other_lo_rank, kicker: ref other_kicker}) => {
+            this_comparable_buffer.push(this_hi_rank.clone());
+            other_comparable_buffer.push(other_hi_rank.clone());
+
+            this_comparable_buffer.push(this_lo_rank.clone());
+            other_comparable_buffer.push(other_lo_rank.clone());
+
+            this_comparable_buffer.push(this_kicker.clone());
+            other_comparable_buffer.push(other_kicker.clone());
+        },
+        (&Hand::Trips{rank: ref this_rank, kickers: ref these_kickers}, &Hand::Trips{rank: ref other_rank, kickers: ref other_kickers}) => {
+            assert_eq!(2, these_kickers.len());
+            assert_eq!(2, other_kickers.len());
+
+            this_comparable_buffer.push(this_rank.clone());
+            other_comparable_buffer.push(other_rank.clone());
+
+            this_comparable_buffer.push_all(these_kickers);
+            other_comparable_buffer.push_all(other_kickers);
+        },
+        (&Hand::Straight{hi_rank: ref this_rank}, &Hand::Straight{hi_rank: ref other_rank}) => {
+            this_comparable_buffer.push(this_rank.clone());
+            other_comparable_buffer.push(other_rank.clone());
+        },
+        (&Hand::Flush{ranks: ref these_ranks}, &Hand::Flush{ranks: ref other_ranks}) => {
+            this_comparable_buffer.push_all(these_ranks);
+            other_comparable_buffer.push_all(other_ranks);
+        },
+        (&Hand::FullHouse{three_of: ref this_three_of, two_of: ref this_two_of}, &Hand::FullHouse{three_of: ref other_three_of, two_of: ref other_two_of}) => {
+            this_comparable_buffer.push(this_three_of.clone());
+            other_comparable_buffer.push(other_three_of.clone());
+
+            this_comparable_buffer.push(this_two_of.clone());
+            other_comparable_buffer.push(other_two_of.clone());
+        },
+        (&Hand::Quads{rank: ref this_rank, kicker: ref this_kicker}, &Hand::Quads{rank: ref other_rank, kicker: ref other_kicker}) => {
+            this_comparable_buffer.push(this_rank.clone());
+            other_comparable_buffer.push(other_rank.clone());
+
+            this_comparable_buffer.push(this_kicker.clone());
+            other_comparable_buffer.push(other_kicker.clone());
+        },
+        (&Hand::StraightFlush{hi_rank: ref this_rank}, &Hand::StraightFlush{hi_rank: ref other_rank}) => {
+            this_comparable_buffer.push(this_rank.clone());
+            other_comparable_buffer.push(other_rank.clone());
         },
 
-//TODO all the other hands lol
-
         // Logic error case where the hands are different types
-        (_, _) => panic!("Different hand types passed to cmp_same_type_hand()!\
-                         {} {}", this, other)
-    }
-}
-
-fn cmp_ordered_ranks(these_ranks: &[Rank], other_ranks: &[Rank]) -> Ordering {
-    assert_eq!(these_ranks.len(), other_ranks.len());
-    // This works because the ranks are sorted descending, and comparable
-    these_ranks.cmp(other_ranks)
+        (_, _) => { panic!("Different hand types passed to cmp_same_type_hand()!\
+                         {} {}", this, other) },
+    };
+    assert_eq!(this_comparable_buffer.len(), other_comparable_buffer.len());
+    this_comparable_buffer.cmp(&other_comparable_buffer)
 }
 
 impl Show for Hand {
