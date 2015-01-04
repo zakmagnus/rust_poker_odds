@@ -1,6 +1,7 @@
 extern crate cards;
 
 use cards::Rank;
+use std::fmt::{Show, Formatter};
 
 // Rank arrays are used for kickers. They should be sorted descending.
 
@@ -67,7 +68,8 @@ fn cmp_same_type_hand(this: & Hand, other: & Hand) -> Ordering {
 //TODO all the other hands lol
 
         // Logic error case where the hands are different types
-        (_, _) => panic!("Different hand types passed to cmp_same_type_hand()!")
+        (_, _) => panic!("Different hand types passed to cmp_same_type_hand()!\
+                         {} {}", this, other)
     }
 }
 
@@ -75,4 +77,21 @@ fn cmp_ordered_ranks(these_ranks: &[Rank], other_ranks: &[Rank]) -> Ordering {
     assert_eq!(these_ranks.len(), other_ranks.len());
     // This works because the ranks are sorted descending, and comparable
     these_ranks.cmp(other_ranks)
+}
+
+impl Show for Hand {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        let string = match *self {
+            Hand::HiCard{ref ranks} => format!("{}", ranks),
+            Hand::Pair{ref rank, ref kickers} => format!("Pair of {}s, {} kickers", rank, kickers),
+            Hand::TwoPair{ref hiRank, ref loRank, ref kicker} => format!("Two pair, {} and {}, {} kicker", hiRank, loRank, kicker),
+            Hand::Trips{ref rank, ref kickers} => format!("Trip {}s, {} kickers", rank, kickers),
+            Hand::Straight{ref hiRank} => format!("{}-high straight", hiRank),
+            Hand::Flush{ref ranks} => format!("Flush of {}", ranks),
+            Hand::FullHouse{ref threeOf, ref twoOf} => format!("Full house, three {}s, two {}s", threeOf, twoOf),
+            Hand::Quads{ref rank, ref kicker} => format!("Quad {}s, {} kicker", rank, kicker),
+            Hand::StraightFlush{ref hiRank} => format!("{}-high straight flush", hiRank),
+        };
+        write!(f, "{}", string)
+    }
 }

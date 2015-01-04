@@ -2,6 +2,7 @@ use std::option::Option;
 use std::cmp::Ord;
 use std::cmp::PartialOrd;
 use std::cmp::Ordering;
+use std::fmt::{Show, Formatter};
 
 pub enum Suit {
     Spades,
@@ -64,6 +65,42 @@ impl PartialEq for Rank {
     }
 }
 
+impl Show for Suit {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        let string = match *self {
+            Suit::Spades => "Spades",
+            Suit::Hearts => "Hearts",
+            Suit::Diamonds => "Diamonds",
+            Suit::Clubs => "Clubs",
+        };
+        write!(f, "{}", string)
+    }
+}
+
+impl Show for Rank {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        let string = match *self {
+            Rank::Ace => "Ace",
+            Rank::King => "King",
+            Rank::Queen => "Queen",
+            Rank::Jack => "Jack",
+            Rank::Ten => "Ten",
+            Rank::Nine => "Nine",
+            Rank::Eight => "Eight",
+            Rank::Seven => "Seven",
+            Rank::Six => "Six",
+            Rank::Five => "Five",
+            Rank::Four => "Four",
+            Rank::Three => "Three",
+            Rank::Two => "Two",
+        };
+        write!(f, "{}", string)
+    }
+}
 
 pub struct Card { suit: Suit, rank: Rank }
-
+impl Show for Card {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        write!(f, "{} of {}", self.rank, self.suit)
+    }
+}
