@@ -8,13 +8,13 @@ use std::fmt::{Show, Formatter};
 enum Hand {
     HiCard        {ranks: [Rank, ..5]},
     Pair          {rank: Rank, kickers: [Rank, ..5]},
-    TwoPair       {hiRank: Rank, loRank: Rank, kicker: Rank},
+    TwoPair       {hi_rank: Rank, lo_rank: Rank, kicker: Rank},
     Trips         {rank: Rank, kickers: [Rank, ..2]},
-    Straight      {hiRank: Rank},
+    Straight      {hi_rank: Rank},
     Flush         {ranks: [Rank, ..5]},
-    FullHouse     {threeOf: Rank, twoOf: Rank},
+    FullHouse     {three_of: Rank, two_of: Rank},
     Quads         {rank: Rank, kicker: Rank},
-    StraightFlush {hiRank: Rank},
+    StraightFlush {hi_rank: Rank},
 }
 
 fn hand_to_index(hand: & Hand) -> u8 {
@@ -84,13 +84,13 @@ impl Show for Hand {
         let string = match *self {
             Hand::HiCard{ref ranks} => format!("{}", ranks),
             Hand::Pair{ref rank, ref kickers} => format!("Pair of {}s, {} kickers", rank, kickers),
-            Hand::TwoPair{ref hiRank, ref loRank, ref kicker} => format!("Two pair, {} and {}, {} kicker", hiRank, loRank, kicker),
+            Hand::TwoPair{ref hi_rank, ref lo_rank, ref kicker} => format!("Two pair, {} and {}, {} kicker", hi_rank, lo_rank, kicker),
             Hand::Trips{ref rank, ref kickers} => format!("Trip {}s, {} kickers", rank, kickers),
-            Hand::Straight{ref hiRank} => format!("{}-high straight", hiRank),
+            Hand::Straight{ref hi_rank} => format!("{}-high straight", hi_rank),
             Hand::Flush{ref ranks} => format!("Flush of {}", ranks),
-            Hand::FullHouse{ref threeOf, ref twoOf} => format!("Full house, three {}s, two {}s", threeOf, twoOf),
+            Hand::FullHouse{ref three_of, ref two_of} => format!("Full house, three {}s, two {}s", three_of, two_of),
             Hand::Quads{ref rank, ref kicker} => format!("Quad {}s, {} kicker", rank, kicker),
-            Hand::StraightFlush{ref hiRank} => format!("{}-high straight flush", hiRank),
+            Hand::StraightFlush{ref hi_rank} => format!("{}-high straight flush", hi_rank),
         };
         write!(f, "{}", string)
     }
