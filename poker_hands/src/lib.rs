@@ -5,6 +5,7 @@ use std::fmt::{Show, Formatter};
 
 // Rank arrays are used for kickers. They should be sorted descending.
 
+#[deriving(Eq, Ord)]
 enum Hand {
     HiCard        {ranks: [Rank, ..5]},
     Pair          {rank: Rank, kickers: [Rank, ..5]},
@@ -48,8 +49,11 @@ impl PartialOrd for Hand {
 
 impl PartialEq for Hand {
     fn eq(&self, other: &Hand) -> bool {
-        //TODO
-        false
+        let cmp_maybe = self.partial_cmp(other);
+        match cmp_maybe {
+            Some(cmp) => cmp == Ordering::Equal,
+            None => panic!("partial_cmp() failed to order hands {} and {}", self, other)
+        }
     }
 }
 
