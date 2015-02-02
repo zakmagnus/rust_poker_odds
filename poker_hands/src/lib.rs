@@ -86,10 +86,10 @@ mod hand_builder {
 
     pub fn get_straight_flush(cards: &[Card]) -> Option<Box<StraightFlushStr>> {
         let flush_suit = get_flush_suit(cards);
-        match flush_suit {
-            None => return None,
-            Some(_) => {}, // Ok, now look for a straight, too.
-        };
+        if !flush_suit.is_some() {
+            return None;
+        }
+        // Found a flush; now look for a straight, too.
 
         let straight_candidate = get_straight(cards);
         match straight_candidate {
@@ -100,13 +100,12 @@ mod hand_builder {
 
     pub fn get_flush(cards: &[Card]) -> Option<Box<FlushStr>> {
         let flush_suit = get_flush_suit(cards);
-        match flush_suit {
-            None => None, // No suit, no flush!
-            Some(_) => {
-                let box HiCardStr{ranks} = get_hi_card(cards);
-                Some(box FlushStr{ranks: ranks})
-            },
+        if !flush_suit.is_some() {
+            return None; // No suit, no flush!
         }
+
+        let box HiCardStr{ranks} = get_hi_card(cards);
+        Some(box FlushStr{ranks: ranks})
     }
 
     pub fn get_quads(cards: &[Card]) -> Option<Box<QuadsStr>> {
