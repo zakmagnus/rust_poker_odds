@@ -70,17 +70,7 @@ impl Hand {
 
 mod hand_builder {
     use cards::{Rank, Suit, Card};
-    //TODO try using curlies here
-    use Hand;
-    use HiCardStr;
-    use PairStr;
-    use TwoPairStr;
-    use TripsStr;
-    use StraightStr;
-    use FlushStr;
-    use FullHouseStr;
-    use QuadsStr;
-    use StraightFlushStr;
+    use {Hand, HiCardStr, PairStr, TwoPairStr, TripsStr, StraightStr, FlushStr, FullHouseStr, QuadsStr, StraightFlushStr};
 
     /*
     Functions which construct a Hand from five Cards, if they form that hand.
