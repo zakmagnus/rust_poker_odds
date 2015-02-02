@@ -1,9 +1,10 @@
-use std::option::Option;
-use std::cmp::Ord;
-use std::cmp::PartialOrd;
-use std::cmp::Ordering;
-use std::fmt::{Show, Formatter};
+#![feature(core)]
 
+use std::option::Option;
+use std::cmp::{Ord, PartialOrd, Ordering};
+use std::fmt::{Debug, Formatter};
+
+#[derive(Copy, Debug)]
 pub enum Suit {
     Spades,
     Hearts,
@@ -11,7 +12,7 @@ pub enum Suit {
     Diamonds,
 }
 
-#[deriving(Eq, Ord, Clone)]
+#[derive(Eq, Ord, Copy, Debug)]
 pub enum Rank {
     Ace,
     King,
@@ -65,42 +66,10 @@ impl PartialEq for Rank {
     }
 }
 
-impl Show for Suit {
+#[derive(Copy)]
+pub struct Card { pub suit: Suit, pub rank: Rank }
+impl Debug for Card {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        let string = match *self {
-            Suit::Spades => "Spades",
-            Suit::Hearts => "Hearts",
-            Suit::Diamonds => "Diamonds",
-            Suit::Clubs => "Clubs",
-        };
-        write!(f, "{}", string)
-    }
-}
-
-impl Show for Rank {
-    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        let string = match *self {
-            Rank::Ace => "Ace",
-            Rank::King => "King",
-            Rank::Queen => "Queen",
-            Rank::Jack => "Jack",
-            Rank::Ten => "Ten",
-            Rank::Nine => "Nine",
-            Rank::Eight => "Eight",
-            Rank::Seven => "Seven",
-            Rank::Six => "Six",
-            Rank::Five => "Five",
-            Rank::Four => "Four",
-            Rank::Three => "Three",
-            Rank::Two => "Two",
-        };
-        write!(f, "{}", string)
-    }
-}
-
-pub struct Card { suit: Suit, rank: Rank }
-impl Show for Card {
-    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-        write!(f, "{} of {}", self.rank, self.suit)
+        write!(f, "{:?} of {:?}", self.rank, self.suit)
     }
 }
