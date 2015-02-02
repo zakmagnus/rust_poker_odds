@@ -4,7 +4,7 @@ use std::option::Option;
 use std::cmp::{Ord, PartialOrd, Ordering};
 use std::fmt::{Debug, Formatter};
 
-#[derive(Copy, Debug)]
+#[derive(Eq, PartialEq, Copy, Debug)]
 pub enum Suit {
     Spades,
     Hearts,

@@ -145,8 +145,14 @@ None//TODO
     }
 
     fn get_flush_suit(cards: &[Card]) -> Option<Suit> {
-None//TODO
-
+        let Card{rank: _, suit: flush_suit} = cards[0];
+        for card in cards.iter() {
+            let &Card{rank: _, suit} = card;
+            if suit != flush_suit {
+                return None;
+            }
+        }
+        Option::Some(flush_suit)
     }
 }
 
