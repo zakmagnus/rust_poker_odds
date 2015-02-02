@@ -30,6 +30,8 @@ pub enum Hand {
     StraightFlush(StraightFlushStr)
 }
 
+use Hand::{HiCard, Pair, TwoPair, Trips, Straight, Flush, FullHouse, Quads, StraightFlush};
+
 // Macro facilitating returning as soon as a function returns a match.
 macro_rules! try_getting_hand(
     ($function:path, $hand_type:path, $cards:ident) => {
@@ -47,7 +49,7 @@ impl Hand {
 
         //TODO try all possible 5-card hands
         //TODO return the best one
-        Hand::Straight(StraightStr{hi_rank: Rank::Ace})//TODO
+        Straight(StraightStr{hi_rank: Rank::Ace})//TODO
 
         //XXX an alternate algorithm is to actually try to build up hands sequentially
     }
@@ -56,15 +58,15 @@ impl Hand {
     pub fn get_hand(cards: &[Card]) -> Box<Hand> {
         assert!(cards.len() == 5);
 
-        try_getting_hand!(hand_builder::get_straight_flush, Hand::StraightFlush, cards);
-        try_getting_hand!(hand_builder::get_quads, Hand::Quads, cards);
-        try_getting_hand!(hand_builder::get_full_house, Hand::FullHouse, cards);
-        try_getting_hand!(hand_builder::get_flush, Hand::Flush, cards);
-        try_getting_hand!(hand_builder::get_straight, Hand::Straight, cards);
-        try_getting_hand!(hand_builder::get_trips, Hand::Trips, cards);
-        try_getting_hand!(hand_builder::get_two_pair, Hand::TwoPair, cards);
-        try_getting_hand!(hand_builder::get_pair, Hand::Pair, cards);
-        box Hand::HiCard(*hand_builder::get_hi_card(cards))
+        try_getting_hand!(hand_builder::get_straight_flush, StraightFlush, cards);
+        try_getting_hand!(hand_builder::get_quads, Quads, cards);
+        try_getting_hand!(hand_builder::get_full_house, FullHouse, cards);
+        try_getting_hand!(hand_builder::get_flush, Flush, cards);
+        try_getting_hand!(hand_builder::get_straight, Straight, cards);
+        try_getting_hand!(hand_builder::get_trips, Trips, cards);
+        try_getting_hand!(hand_builder::get_two_pair, TwoPair, cards);
+        try_getting_hand!(hand_builder::get_pair, Pair, cards);
+        box HiCard(*hand_builder::get_hi_card(cards))
     }
 }
 
@@ -151,15 +153,15 @@ None//TODO
 
 fn hand_to_index(hand: & Hand) -> u8 {
     match *hand {
-        Hand::HiCard(..) => 0,
-        Hand::Pair(..) => 1,
-        Hand::TwoPair(..) => 2,
-        Hand::Trips(..) => 3,
-        Hand::Straight(..) => 4,
-        Hand::Flush(..) => 5,
-        Hand::FullHouse(..) => 6,
-        Hand::Quads(..) => 7,
-        Hand::StraightFlush(..) => 8,
+        HiCard(..) => 0,
+        Pair(..) => 1,
+        TwoPair(..) => 2,
+        Trips(..) => 3,
+        Straight(..) => 4,
+        Flush(..) => 5,
+        FullHouse(..) => 6,
+        Quads(..) => 7,
+        StraightFlush(..) => 8,
     }
 }
 
@@ -201,11 +203,11 @@ fn cmp_same_type_hand(this: & Hand, other: & Hand) -> Ordering {
     let mut other_comparable_buffer: Vec<Rank> = Vec::with_capacity(5);
 
     match (this, other) {
-        (&Hand::HiCard(HiCardStr{ranks: ref these_ranks}), &Hand::HiCard(HiCardStr{ranks: ref other_ranks})) => {
+        (&HiCard(HiCardStr{ranks: ref these_ranks}), &HiCard(HiCardStr{ranks: ref other_ranks})) => {
             copy_all(&mut this_comparable_buffer, these_ranks);
             copy_all(&mut other_comparable_buffer, other_ranks);
         },
-        (&Hand::Pair(PairStr{rank: this_rank, kickers: ref these_kickers}), &Hand::Pair(PairStr{rank: other_rank, kickers: ref other_kickers})) => {
+        (&Pair(PairStr{rank: this_rank, kickers: ref these_kickers}), &Pair(PairStr{rank: other_rank, kickers: ref other_kickers})) => {
             assert_eq!(3, these_kickers.len());
             assert_eq!(3, other_kickers.len());
 
@@ -215,7 +217,7 @@ fn cmp_same_type_hand(this: & Hand, other: & Hand) -> Ordering {
             copy_all(&mut this_comparable_buffer, these_kickers);
             copy_all(&mut other_comparable_buffer, other_kickers);
         },
-        (&Hand::TwoPair(TwoPairStr{hi_rank: this_hi_rank, lo_rank: this_lo_rank, kicker: this_kicker}), &Hand::TwoPair(TwoPairStr{hi_rank: other_hi_rank, lo_rank: other_lo_rank, kicker: other_kicker})) => {
+        (&TwoPair(TwoPairStr{hi_rank: this_hi_rank, lo_rank: this_lo_rank, kicker: this_kicker}), &TwoPair(TwoPairStr{hi_rank: other_hi_rank, lo_rank: other_lo_rank, kicker: other_kicker})) => {
             this_comparable_buffer.push(this_hi_rank);
             other_comparable_buffer.push(other_hi_rank);
 
@@ -225,7 +227,7 @@ fn cmp_same_type_hand(this: & Hand, other: & Hand) -> Ordering {
             this_comparable_buffer.push(this_kicker);
             other_comparable_buffer.push(other_kicker);
         },
-        (&Hand::Trips(TripsStr{rank: this_rank, kickers: ref these_kickers}), &Hand::Trips(TripsStr{rank: other_rank, kickers: ref other_kickers})) => {
+        (&Trips(TripsStr{rank: this_rank, kickers: ref these_kickers}), &Trips(TripsStr{rank: other_rank, kickers: ref other_kickers})) => {
             assert_eq!(2, these_kickers.len());
             assert_eq!(2, other_kickers.len());
 
@@ -235,29 +237,29 @@ fn cmp_same_type_hand(this: & Hand, other: & Hand) -> Ordering {
             copy_all(&mut this_comparable_buffer, these_kickers);
             copy_all(&mut other_comparable_buffer, other_kickers);
         },
-        (&Hand::Straight(StraightStr{hi_rank: this_rank}), &Hand::Straight(StraightStr{hi_rank: other_rank})) => {
+        (&Straight(StraightStr{hi_rank: this_rank}), &Straight(StraightStr{hi_rank: other_rank})) => {
             this_comparable_buffer.push(this_rank);
             other_comparable_buffer.push(other_rank);
         },
-        (&Hand::Flush(FlushStr{ranks: ref these_ranks}), &Hand::Flush(FlushStr{ranks: ref other_ranks})) => {
+        (&Flush(FlushStr{ranks: ref these_ranks}), &Flush(FlushStr{ranks: ref other_ranks})) => {
             copy_all(&mut this_comparable_buffer, these_ranks);
             copy_all(&mut other_comparable_buffer, other_ranks);
         },
-        (&Hand::FullHouse(FullHouseStr{three_of: this_three_of, two_of: this_two_of}), &Hand::FullHouse(FullHouseStr{three_of: other_three_of, two_of: other_two_of})) => {
+        (&FullHouse(FullHouseStr{three_of: this_three_of, two_of: this_two_of}), &FullHouse(FullHouseStr{three_of: other_three_of, two_of: other_two_of})) => {
             this_comparable_buffer.push(this_three_of);
             other_comparable_buffer.push(other_three_of);
 
             this_comparable_buffer.push(this_two_of);
             other_comparable_buffer.push(other_two_of);
         },
-        (&Hand::Quads(QuadsStr{rank: this_rank, kicker: this_kicker}), &Hand::Quads(QuadsStr{rank: other_rank, kicker: other_kicker})) => {
+        (&Quads(QuadsStr{rank: this_rank, kicker: this_kicker}), &Quads(QuadsStr{rank: other_rank, kicker: other_kicker})) => {
             this_comparable_buffer.push(this_rank);
             other_comparable_buffer.push(other_rank);
 
             this_comparable_buffer.push(this_kicker);
             other_comparable_buffer.push(other_kicker);
         },
-        (&Hand::StraightFlush(StraightFlushStr{hi_rank: this_rank}), &Hand::StraightFlush(StraightFlushStr{hi_rank: other_rank})) => {
+        (&StraightFlush(StraightFlushStr{hi_rank: this_rank}), &StraightFlush(StraightFlushStr{hi_rank: other_rank})) => {
             this_comparable_buffer.push(this_rank);
             other_comparable_buffer.push(other_rank);
         },
@@ -279,15 +281,15 @@ fn copy_all<T: Copy> (dest: & mut Vec<T>, src: &[T]) {
 impl Debug for Hand {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         let string = match *self {
-            Hand::HiCard(HiCardStr{ref ranks}) => format!("{:?}", ranks),
-            Hand::Pair(PairStr{rank, ref kickers}) => format!("Pair of {:?}s, {:?} kickers", rank, kickers),
-            Hand::TwoPair(TwoPairStr{hi_rank, lo_rank, kicker}) => format!("Two pair, {:?} and {:?}, {:?} kicker", hi_rank, lo_rank, kicker),
-            Hand::Trips(TripsStr{rank, ref kickers}) => format!("Trip {:?}s, {:?} kickers", rank, kickers),
-            Hand::Straight(StraightStr{hi_rank}) => format!("{:?}-high straight", hi_rank),
-            Hand::Flush(FlushStr{ref ranks}) => format!("Flush of {:?}", ranks),
-            Hand::FullHouse(FullHouseStr{three_of, two_of}) => format!("Full house, three {:?}s, two {:?}s", three_of, two_of),
-            Hand::Quads(QuadsStr{rank, kicker}) => format!("Quad {:?}s, {:?} kicker", rank, kicker),
-            Hand::StraightFlush(StraightFlushStr{hi_rank}) => format!("{:?}-high straight flush", hi_rank),
+            HiCard(HiCardStr{ref ranks}) => format!("{:?}", ranks),
+            Pair(PairStr{rank, ref kickers}) => format!("Pair of {:?}s, {:?} kickers", rank, kickers),
+            TwoPair(TwoPairStr{hi_rank, lo_rank, kicker}) => format!("Two pair, {:?} and {:?}, {:?} kicker", hi_rank, lo_rank, kicker),
+            Trips(TripsStr{rank, ref kickers}) => format!("Trip {:?}s, {:?} kickers", rank, kickers),
+            Straight(StraightStr{hi_rank}) => format!("{:?}-high straight", hi_rank),
+            Flush(FlushStr{ref ranks}) => format!("Flush of {:?}", ranks),
+            FullHouse(FullHouseStr{three_of, two_of}) => format!("Full house, three {:?}s, two {:?}s", three_of, two_of),
+            Quads(QuadsStr{rank, kicker}) => format!("Quad {:?}s, {:?} kicker", rank, kicker),
+            StraightFlush(StraightFlushStr{hi_rank}) => format!("{:?}-high straight flush", hi_rank),
         };
         write!(f, "{}", string)
     }
