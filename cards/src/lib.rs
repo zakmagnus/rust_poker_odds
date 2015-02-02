@@ -14,45 +14,26 @@ pub enum Suit {
 
 #[derive(Eq, Ord, Copy, Debug)]
 pub enum Rank {
-    Ace,
-    King,
-    Queen,
-    Jack,
-    Ten,
-    Nine,
-    Eight,
-    Seven,
-    Six,
-    Five,
-    Four,
-    Three,
+    // The order here is used for comparison. Note the high ace.
     Two,
+    Three,
+    Four,
+    Five,
+    Six,
+    Seven,
+    Eight,
+    Nine,
+    Ten,
+    Jack,
+    Queen,
+    King,
+    Ace,
 }
 
-// This uses a high ace.
-fn rank_to_index(rank: & Rank) -> u8 {
-    match *rank {
-        Rank::Ace => 14,
-        Rank::King => 13,
-        Rank::Queen => 12,
-        Rank::Jack => 11,
-        Rank::Ten => 10,
-        Rank::Nine => 9,
-        Rank::Eight => 8,
-        Rank::Seven => 7,
-        Rank::Six => 6,
-        Rank::Five => 5,
-        Rank::Four => 4,
-        Rank::Three => 3,
-        Rank::Two => 2,
-    }
-}
-
-// Ace is high in this ordering.
 impl PartialOrd for Rank {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        let this_index = rank_to_index(self);
-        let other_index = rank_to_index(other);
+        let this_index = *self as i32;
+        let other_index = *other as i32;
         let comparison = this_index.cmp(&other_index);
         Option::Some(comparison)
     }
@@ -60,8 +41,8 @@ impl PartialOrd for Rank {
 
 impl PartialEq for Rank {
     fn eq(&self, other: &Rank) -> bool {
-        let this_index = rank_to_index(self);
-        let other_index = rank_to_index(other);
+        let this_index = *self as i32;
+        let other_index = *other as i32;
         this_index.eq(&other_index)
     }
 }
