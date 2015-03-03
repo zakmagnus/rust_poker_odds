@@ -117,8 +117,25 @@ None//TODO
     }
 
     pub fn get_straight(cards: &[Card]) -> Option<Box<StraightStr>> {
-None//TODO
-
+        for i in 1..4 {
+            let this_card = cards[i];
+            let prev_card = cards[i - 1];
+            // Wheel detection
+            if i == 1 && prev_card.rank == Rank::Ace && this_card.rank == Rank::Two {
+                continue;
+            }
+            let this_rank_index = cards[i].rank as i32;
+            let prev_rank_index = cards[i - 1].rank as i32;
+            if this_rank_index != prev_rank_index + 1 {
+                return None
+            }
+        }
+        // Straight detected! Now make sure to get the wheel right.
+        if cards[0].rank == Rank::Ace {
+            Option::Some(box StraightStr{hi_rank: Rank::Four})
+        } else {
+            Option::Some(box StraightStr{hi_rank: cards[0].rank})
+        }
     }
 
     pub fn get_trips(cards: &[Card]) -> Option<Box<TripsStr>> {
