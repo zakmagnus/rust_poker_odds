@@ -140,14 +140,18 @@ None//TODO
    is the case, meaning a high card hand can definitely be formed.
  */
     pub fn get_hi_card(cards: &[Card]) -> Box<HiCardStr> {
-        box HiCardStr{ranks: [Rank::Ace, Rank::Queen, Rank::Jack, Rank::Ten, Rank::Nine]} //TODO
-
+        // Note the cards are assumed to be sorted by rank already.
+        box HiCardStr{ranks: [cards[0].rank,
+                              cards[1].rank,
+                              cards[2].rank,
+                              cards[3].rank,
+                              cards[4].rank]}
     }
 
     fn get_flush_suit(cards: &[Card]) -> Option<Suit> {
-        let Card{rank: _, suit: flush_suit} = cards[0];
+        let flush_suit = cards[0].suit;
         for card in cards.iter() {
-            let &Card{rank: _, suit} = card;
+            let suit = card.suit;
             if suit != flush_suit {
                 return None;
             }
