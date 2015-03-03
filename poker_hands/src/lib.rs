@@ -109,11 +109,61 @@ mod hand_builder {
     }
 
     pub fn get_quads(cards: &[Card]) -> Option<Box<QuadsStr>> {
-None//TODO
+        // In sorted quads, either the first or last two cards must have the same rank.
+        let high_kicker = cards[0].rank != cards[1].rank;
+        let low_kicker = cards[3].rank != cards[4].rank;
+        if (!low_kicker) && (!high_kicker) {
+            return None
+        }
+
+        // Now which end the kicker is on is known.
+        // Assume the rest are quads and check that assumption.
+        let (kicker, quad_rank, quad_start_index, quad_end_index) =
+        if low_kicker {
+            (cards[4].rank, cards[0].rank, 0, 3)
+        } else {
+            (cards[0].rank, cards[1].rank, 1, 4)
+        };
+        for i in quad_start_index..quad_end_index {
+            if cards[i].rank != quad_rank {
+                return None
+            }
+        }
+        Option::Some(box QuadsStr{rank: quad_rank, kicker: kicker})
     }
 
     pub fn get_full_house(cards: &[Card]) -> Option<Box<FullHouseStr>> {
-None//TODO
+        /* In a sorted boat, the first two cards have the same rank, and
+         * the last two cards have the same rank. The middle card shares
+         * a rank with one of the ends.
+         */
+        if cards[0].rank != cards[1].rank {
+            return None
+        }
+        if cards[4].rank != cards[1].rank {
+            return None
+        }
+
+        let high_pair_rank = cards[0].rank;
+        let low_pair_rank = cards[4].rank;
+        // Sanity check - sorted cards, no five-of-a-kind!
+        assert!(high_pair_rank != low_pair_rank);
+        let middle_rank = cards[2].rank;
+        let three_of_high = high_pair_rank == middle_rank;
+        let three_of_low = low_pair_rank == middle_rank;
+
+        if (!three_of_high) && (!three_of_low) {
+            // No three-of-a-kind at all.
+            return None
+        }
+
+        let (three_of, two_of) =
+        if three_of_high {
+            (high_pair_rank, low_pair_rank)
+        } else {
+            (low_pair_rank, high_pair_rank)
+        };
+        Option::Some(box FullHouseStr{three_of: three_of, two_of: two_of})
     }
 
     pub fn get_straight(cards: &[Card]) -> Option<Box<StraightStr>> {
