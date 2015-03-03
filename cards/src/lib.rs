@@ -1,5 +1,3 @@
-#![feature(core)]
-
 use std::option::Option;
 use std::cmp::{Ord, PartialOrd, Ordering};
 use std::fmt::{Debug, Formatter};

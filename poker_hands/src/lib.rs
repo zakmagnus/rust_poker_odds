@@ -1,5 +1,5 @@
-#![feature(core)]
 #![feature(box_syntax)]
+#![feature(box_patterns)]
 extern crate cards;
 
 use cards::{Rank, Suit, Card};
