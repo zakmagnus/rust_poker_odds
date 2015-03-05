@@ -189,8 +189,18 @@ mod hand_builder {
     }
 
     pub fn get_trips(cards: &[Card]) -> Option<Box<TripsStr>> {
-None//TODO
+        let (trip_rank, high_kicker, low_kicker) =
+        if cards[0].rank == cards[2].rank {
+            (cards[0].rank, cards[3].rank, cards[4].rank)
+        } else if cards[1].rank == cards[3].rank {
+            (cards[1].rank, cards[0].rank, cards[4].rank)
+        } else if cards[2].rank == cards[4].rank {
+            (cards[2].rank, cards[0].rank, cards[1].rank)
+        } else {
+            return None
+        };
 
+        Option::Some(box TripsStr{rank: trip_rank, kickers: [high_kicker, low_kicker]})
     }
 
     pub fn get_two_pair(cards: &[Card]) -> Option<Box<TwoPairStr>> {
