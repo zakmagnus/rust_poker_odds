@@ -204,8 +204,35 @@ mod hand_builder {
     }
 
     pub fn get_two_pair(cards: &[Card]) -> Option<Box<TwoPairStr>> {
-None//TODO
+        let mut high_pair_rank = Option::None;
+        let mut low_pair_rank = Option::None;
+        let mut kicker = Rank::Ace; // Initial dummy value.
+        let mut i = 1;
+        while i < 4 {
+            let this_rank = cards[i].rank;
+            let prev_rank = cards[i - 1].rank;
+            if this_rank != prev_rank {
+                kicker = prev_rank;
+                i += 1;
+            } else {
+                if !high_pair_rank.is_some() {
+                    high_pair_rank = Option::Some(this_rank);
+                } else if !low_pair_rank.is_some() {
+                    low_pair_rank = Option::Some(this_rank);
+                } else {
+                    panic!("Two pairs have already been found, yet have found a third one. High pair: {:?} Low pair: {:?} Third pair: {:?} Hand: {:?}",
+                        high_pair_rank, low_pair_rank, this_rank, cards);
+                }
+                i += 2; // Found a pair, so don't compare the next rank to this one.
+            }
+        }
 
+        if !(high_pair_rank.is_some() && low_pair_rank.is_some()) {
+            return None
+        }
+
+        Option::Some(box TwoPairStr{hi_rank: high_pair_rank.unwrap(),
+            lo_rank: low_pair_rank.unwrap(), kicker: kicker})
     }
 
     pub fn get_pair(cards: &[Card]) -> Option<Box<PairStr>> {
