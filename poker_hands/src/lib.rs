@@ -96,7 +96,7 @@ mod hand_builder {
 
         let straight_candidate = get_straight(cards);
         match straight_candidate {
-            Some(box StraightStr{hi_rank}) => Option::Some(box StraightFlushStr{hi_rank: hi_rank}),
+            Some(box StraightStr{hi_rank}) => Some(box StraightFlushStr{hi_rank: hi_rank}),
             None => None
         }
     }
@@ -132,7 +132,7 @@ mod hand_builder {
                 return None
             }
         }
-        Option::Some(box QuadsStr{rank: quad_rank, kicker: kicker})
+        Some(box QuadsStr{rank: quad_rank, kicker: kicker})
     }
 
     pub fn get_full_house(cards: &[Card]) -> Option<Box<FullHouseStr>> {
@@ -166,7 +166,7 @@ mod hand_builder {
         } else {
             (low_pair_rank, high_pair_rank)
         };
-        Option::Some(box FullHouseStr{three_of: three_of, two_of: two_of})
+        Some(box FullHouseStr{three_of: three_of, two_of: two_of})
     }
 
     pub fn get_straight(cards: &[Card]) -> Option<Box<StraightStr>> {
@@ -185,9 +185,9 @@ mod hand_builder {
         }
         // Straight detected! Now make sure to get the wheel right.
         if cards[0].rank == Rank::Ace {
-            Option::Some(box StraightStr{hi_rank: Rank::Four})
+            Some(box StraightStr{hi_rank: Rank::Four})
         } else {
-            Option::Some(box StraightStr{hi_rank: cards[0].rank})
+            Some(box StraightStr{hi_rank: cards[0].rank})
         }
     }
 
@@ -203,12 +203,12 @@ mod hand_builder {
             return None
         };
 
-        Option::Some(box TripsStr{rank: trip_rank, kickers: [high_kicker, low_kicker]})
+        Some(box TripsStr{rank: trip_rank, kickers: [high_kicker, low_kicker]})
     }
 
     pub fn get_two_pair(cards: &[Card]) -> Option<Box<TwoPairStr>> {
-        let mut high_pair_rank = Option::None;
-        let mut low_pair_rank = Option::None;
+        let mut high_pair_rank = None;
+        let mut low_pair_rank = None;
         let mut kicker = Rank::Ace; // Initial dummy value.
         let mut i = 1;
         while i < 4 {
@@ -219,9 +219,9 @@ mod hand_builder {
                 i += 1;
             } else {
                 if !high_pair_rank.is_some() {
-                    high_pair_rank = Option::Some(this_rank);
+                    high_pair_rank = Some(this_rank);
                 } else if !low_pair_rank.is_some() {
-                    low_pair_rank = Option::Some(this_rank);
+                    low_pair_rank = Some(this_rank);
                 } else {
                     panic!("Two pairs have already been found, yet have found a third one. High pair: {:?} Low pair: {:?} Third pair: {:?} Hand: {:?}",
                         high_pair_rank, low_pair_rank, this_rank, cards);
@@ -234,12 +234,12 @@ mod hand_builder {
             return None
         }
 
-        Option::Some(box TwoPairStr{hi_rank: high_pair_rank.unwrap(),
+        Some(box TwoPairStr{hi_rank: high_pair_rank.unwrap(),
             lo_rank: low_pair_rank.unwrap(), kicker: kicker})
     }
 
     pub fn get_pair(cards: &[Card]) -> Option<Box<PairStr>> {
-        let mut pair_start = Option::None;
+        let mut pair_start = None;
         for i in 0..3 {
             let this_rank = cards[i].rank;
             let next_rank = cards[i + 1].rank;
@@ -288,7 +288,7 @@ mod hand_builder {
                 return None;
             }
         }
-        Option::Some(flush_suit)
+        Some(flush_suit)
     }
 }
 
@@ -323,7 +323,7 @@ impl Ord for Hand {
 
 impl PartialOrd for Hand {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Option::Some(self.cmp(other))
+        Some(self.cmp(other))
     }
 }
 
