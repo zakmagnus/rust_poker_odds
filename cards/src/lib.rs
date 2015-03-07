@@ -2,7 +2,7 @@ use std::option::Option;
 use std::cmp::{Ord, PartialOrd, Ordering};
 use std::fmt::{Debug, Formatter};
 
-#[derive(Eq, PartialEq, Copy, Debug)]
+#[derive(Eq, PartialEq, Ord, PartialOrd, Copy, Debug)]
 pub enum Suit {
     Spades,
     Hearts,
@@ -54,5 +54,27 @@ pub struct Card { pub suit: Suit, pub rank: Rank }
 impl Debug for Card {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         write!(f, "{:?} of {:?}", self.rank, self.suit)
+    }
+}
+
+impl Ord for Card {
+    fn cmp(&self, other: &Self) -> Ordering {
+        let rank_ordering = self.rank.cmp(&other.rank);
+        if rank_ordering != Ordering::Equal {
+            return rank_ordering
+        }
+        return self.suit.cmp(&other.suit)
+    }
+}
+
+impl PartialOrd for Card {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+impl Eq for Card {}
+impl PartialEq for Card {
+    fn eq(&self, other: &Self) -> bool {
+        self.cmp(other) == Ordering::Equal
     }
 }
