@@ -330,11 +330,7 @@ impl PartialOrd for Hand {
 impl Eq for Hand {}
 impl PartialEq for Hand {
     fn eq(&self, other: &Hand) -> bool {
-        let cmp_maybe = self.partial_cmp(other);
-        match cmp_maybe {
-            Some(cmp) => cmp == Ordering::Equal,
-            None => panic!("partial_cmp() failed to order hands {:?} and {:?}", self, other)
-        }
+        self.cmp(other) == Ordering::Equal
     }
 }
 

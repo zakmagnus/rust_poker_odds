@@ -45,9 +45,7 @@ impl PartialOrd for Rank {
 impl Eq for Rank {}
 impl PartialEq for Rank {
     fn eq(&self, other: &Rank) -> bool {
-        let this_index = *self as i32;
-        let other_index = *other as i32;
-        this_index.eq(&other_index)
+        self.cmp(other) == Ordering::Equal
     }
 }
 
