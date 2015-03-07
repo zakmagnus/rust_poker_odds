@@ -44,7 +44,7 @@ impl PartialOrd for Rank {
 
 impl Eq for Rank {}
 impl PartialEq for Rank {
-    fn eq(&self, other: &Rank) -> bool {
+    fn eq(&self, other: &Self) -> bool {
         self.cmp(other) == Ordering::Equal
     }
 }

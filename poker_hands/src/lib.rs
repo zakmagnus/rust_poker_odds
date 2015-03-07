@@ -329,7 +329,7 @@ impl PartialOrd for Hand {
 
 impl Eq for Hand {}
 impl PartialEq for Hand {
-    fn eq(&self, other: &Hand) -> bool {
+    fn eq(&self, other: &Self) -> bool {
         self.cmp(other) == Ordering::Equal
     }
 }
