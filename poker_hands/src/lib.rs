@@ -2,14 +2,14 @@
 #![feature(box_patterns)]
 extern crate cards;
 
-use cards::{Rank, Suit, Card};
+use cards::{Rank, Card};
 use std::fmt::{Debug, Formatter};
 use std::cmp::{Eq, Ordering};
 
 // Rank arrays are used for kickers. They should be sorted descending.
 
 pub struct HiCardStr        {pub ranks: [Rank; 5]}
-pub struct PairStr          {pub rank: Rank, pub kickers: [Rank; 5]}
+pub struct PairStr          {pub rank: Rank, pub kickers: [Rank; 3]}
 pub struct TwoPairStr       {pub hi_rank: Rank, pub lo_rank: Rank, pub kicker: Rank}
 pub struct TripsStr         {pub rank: Rank, pub kickers: [Rank; 2]}
 pub struct StraightStr      {pub hi_rank: Rank}
@@ -72,16 +72,19 @@ impl Hand {
 
 mod hand_builder {
     use cards::{Rank, Suit, Card};
-    use {Hand, HiCardStr, PairStr, TwoPairStr, TripsStr, StraightStr, FlushStr, FullHouseStr, QuadsStr, StraightFlushStr};
+    use {HiCardStr, PairStr, TwoPairStr, TripsStr, StraightStr, FlushStr, FullHouseStr, QuadsStr, StraightFlushStr};
 
     /*
     Functions which construct a Hand from five Cards, if they form that hand.
 
-    Note all these methods assume the actual hand is at best the hand being
+    Note all these functions assume the actual hand is at best the hand being
     asked for. So, for instance, build_trips() assumes the actual hand is
     trips at best, so if it finds trips, it doesn't need to check that the
     hand isn't actually quads or a boat. Quads or boat are better than
     trips, so it assumes beforehand that this hand is not those.
+
+    These functions also assume that the cards they're being passed are
+    already sorted by rank.
     */
 
     pub fn get_straight_flush(cards: &[Card]) -> Option<Box<StraightFlushStr>> {
@@ -236,8 +239,33 @@ mod hand_builder {
     }
 
     pub fn get_pair(cards: &[Card]) -> Option<Box<PairStr>> {
-None//TODO
+        let mut pair_start = Option::None;
+        for i in 0..3 {
+            let this_rank = cards[i].rank;
+            let next_rank = cards[i + 1].rank;
+            if this_rank == next_rank {
+                pair_start = Some(i);
+                break;
+            }
+        }
+        if !pair_start.is_some() {
+            return None
+        }
 
+        let pair_rank = cards[pair_start.unwrap()].rank;
+        let mut kickers = [Rank::Ace, Rank::Ace, Rank::Ace]; // Dummy values.
+        let mut kicker_index = 0;
+        for i in 0..4 {
+            let this_rank = cards[i].rank;
+            if this_rank == pair_rank {
+                continue;
+            }
+            kickers[kicker_index] = this_rank;
+            kicker_index += 1;
+        }
+        assert!(kicker_index == 3);
+
+        return Some(box PairStr{rank: pair_rank, kickers: kickers})
     }
 
 /* Not optional because this assumes nothing better than high card
