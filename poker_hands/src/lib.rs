@@ -406,7 +406,7 @@ fn cmp_same_type_hand(this: & Hand, other: & Hand) -> Ordering {
         },
 
         // Logic error case where the hands are different types
-        (_, _) => { panic!("Different hand types passed to cmp_same_type_hand()!\
+        (_, _) => { panic!("Different hand types passed to cmp_same_type_hand()! \
                          {:?} {:?}", this, other) },
     };
     assert_eq!(this_comparable_buffer.len(), other_comparable_buffer.len());

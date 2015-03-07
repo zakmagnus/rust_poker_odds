@@ -10,7 +10,7 @@ pub enum Suit {
     Diamonds,
 }
 
-#[derive(Eq, Ord, Copy, Debug)]
+#[derive(Copy, Debug)]
 pub enum Rank {
     // The order here is used for comparison. Note the high ace.
     Two,
@@ -28,15 +28,21 @@ pub enum Rank {
     Ace,
 }
 
-impl PartialOrd for Rank {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+impl Ord for Rank {
+    fn cmp(&self, other: &Self) -> Ordering {
         let this_index = *self as i32;
         let other_index = *other as i32;
-        let comparison = this_index.cmp(&other_index);
-        Option::Some(comparison)
+        this_index.cmp(&other_index)
     }
 }
 
+impl PartialOrd for Rank {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Eq for Rank {}
 impl PartialEq for Rank {
     fn eq(&self, other: &Rank) -> bool {
         let this_index = *self as i32;
