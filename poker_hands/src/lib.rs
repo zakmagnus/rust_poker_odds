@@ -57,6 +57,9 @@ impl Hand {
     // Makes five cards into a hand.
     pub fn get_hand(cards: &[Card]) -> Box<Hand> {
         assert!(cards.len() == 5);
+        for i in 0..4 {
+            assert!(cards[i] > cards[i + 1]);
+        }
 
         try_getting_hand!(hand_builder::get_straight_flush, StraightFlush, cards);
         try_getting_hand!(hand_builder::get_quads, Quads, cards);
