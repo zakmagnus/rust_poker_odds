@@ -57,7 +57,7 @@ impl Hand {
     // Makes five cards into a hand.
     pub fn get_hand(cards: &[Card]) -> Box<Hand> {
         assert!(cards.len() == 5);
-        for i in 0..4 {
+        for i in 0..5 {
             assert!(cards[i] > cards[i + 1]);
         }
 
@@ -124,13 +124,13 @@ mod hand_builder {
 
         // Now which end the kicker is on is known.
         // Assume the rest are quads and check that assumption.
-        let (kicker, quad_rank, quad_start_index, quad_end_index) =
+        let (kicker, quad_rank, quad_start_index) =
         if low_kicker {
-            (cards[4].rank, cards[0].rank, 0, 3)
+            (cards[4].rank, cards[0].rank, 0)
         } else {
-            (cards[0].rank, cards[1].rank, 1, 4)
+            (cards[0].rank, cards[1].rank, 1)
         };
-        for i in quad_start_index..quad_end_index {
+        for i in quad_start_index..(quad_start_index + 4) {
             if cards[i].rank != quad_rank {
                 return None
             }
@@ -173,7 +173,7 @@ mod hand_builder {
     }
 
     pub fn get_straight(cards: &[Card]) -> Option<Box<StraightStr>> {
-        for i in 1..4 {
+        for i in 1..5 {
             let this_card = cards[i];
             let prev_card = cards[i - 1];
             // Wheel detection
@@ -243,7 +243,7 @@ mod hand_builder {
 
     pub fn get_pair(cards: &[Card]) -> Option<Box<PairStr>> {
         let mut pair_start = None;
-        for i in 0..3 {
+        for i in 0..4 {
             let this_rank = cards[i].rank;
             let next_rank = cards[i + 1].rank;
             if this_rank == next_rank {
@@ -258,7 +258,7 @@ mod hand_builder {
         let pair_rank = cards[pair_start.unwrap()].rank;
         let mut kickers = [Rank::Ace, Rank::Ace, Rank::Ace]; // Dummy values.
         let mut kicker_index = 0;
-        for i in 0..4 {
+        for i in 0..5 {
             let this_rank = cards[i].rank;
             if this_rank == pair_rank {
                 continue;
