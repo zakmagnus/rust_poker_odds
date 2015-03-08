@@ -2,6 +2,8 @@ use std::option::Option;
 use std::cmp::{Ord, PartialOrd, Ordering};
 use std::fmt::{Debug, Formatter};
 
+mod tests;
+
 #[derive(Eq, PartialEq, Ord, PartialOrd, Copy, Debug)]
 pub enum Suit {
     Spades,
