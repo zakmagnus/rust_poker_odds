@@ -2,6 +2,8 @@
 #![feature(box_patterns)]
 extern crate cards;
 
+mod hand_order_tests;
+
 use cards::{Rank, Card};
 use std::fmt::{Debug, Formatter};
 use std::cmp::{Eq, Ordering};
