@@ -3,24 +3,26 @@
 use super::*;
 use cards::Rank::*;
 
-#[test]
-fn cmp_basic_hands() {
-    let ordered_hands = [air(), pair(), two_pair(), trips(), straight(), flush(), boat(), quads(), str_flush()];
-    for i in 0..(ordered_hands.len() - 1) {
-        assert!(ordered_hands[i] < ordered_hands[i + 1]);
-        assert!(ordered_hands[i] == ordered_hands[i]);
+fn cmp_order<T: Ord>(list: &[T]) {
+    for i in 0..(list.len() - 1) {
+        assert!(list[i] < list[i + 1]);
+        assert!(list[i] == list[i]);
     }
 
-    for i in 0..ordered_hands.len() {
-        for j in 0..ordered_hands.len() {
+    for i in 0..list.len() {
+        for j in 0..list.len() {
             let expected_cmp = i.cmp(&j);
-            let actual_cmp = ordered_hands[i].cmp(&ordered_hands[j]);
+            let actual_cmp = list[i].cmp(&list[j]);
             assert!(expected_cmp == actual_cmp)
         }
     }
-
 }
 
+#[test]
+fn cmp_basic_hands() {
+    let ordered_hands = [air(), pair(), two_pair(), trips(), straight(), flush(), boat(), quads(), str_flush()];
+    cmp_order(&ordered_hands)
+}
 fn str_flush() -> Hand {
     Hand::StraightFlush(StraightFlushStr{hi_rank: Jack})
 }
