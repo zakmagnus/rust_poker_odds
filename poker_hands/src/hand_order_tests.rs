@@ -20,6 +20,45 @@ fn cmp_order<T: Ord>(list: &[T]) {
 }
 
 #[test]
+fn boat_smoke_test() {
+    let ordered_boats = [
+        Hand::FullHouse(FullHouseStr{three_of: Two, two_of: Ace}),
+        Hand::FullHouse(FullHouseStr{three_of: Five, two_of: Six}),
+        Hand::FullHouse(FullHouseStr{three_of: King, two_of: Three}),
+        Hand::FullHouse(FullHouseStr{three_of: Ace, two_of: Four})
+            ];
+    cmp_order(&ordered_boats);
+}
+
+#[test]
+fn cmp_boats() {
+    let two_of = Three;
+    // No such thing as 5-of-a-kind.
+    let mut ordered_boats = Vec::with_capacity(13 - 1);
+    for three_of in Rank::all_ordered().iter() {
+        if three_of == &two_of {
+            continue;
+        }
+        ordered_boats.push(Hand::FullHouse(FullHouseStr{three_of: *three_of, two_of: two_of}));
+    }
+    cmp_order(&ordered_boats);
+}
+
+#[test]
+fn cmp_boats_by_two_of() {
+    let three_of = Queen;
+    // No such thing as 5-of-a-kind.
+    let mut ordered_boats = Vec::with_capacity(13 - 1);
+    for two_of in Rank::all_ordered().iter() {
+        if two_of == &three_of {
+            continue;
+        }
+        ordered_boats.push(Hand::FullHouse(FullHouseStr{three_of: three_of, two_of: *two_of}));
+    }
+    cmp_order(&ordered_boats);
+}
+
+#[test]
 fn quads_smoke_test() {
     let ordered_quads = [
         Hand::Quads(QuadsStr{rank: Two, kicker: Ace}),
