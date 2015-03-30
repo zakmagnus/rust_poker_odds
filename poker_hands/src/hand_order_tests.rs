@@ -20,6 +20,20 @@ fn cmp_order<T: Ord>(list: &[T]) {
 }
 
 #[test]
+fn cmp_straights() {
+    let ordered_ranks = Rank::all_ordered();
+    // Four straights are actually impossible, so don't test them.
+    let mut ordered_straights = Vec::with_capacity(13 - 4);
+    for rank in ordered_ranks.iter() {
+        if rank < &Five {
+            continue;
+        }
+        ordered_straights.push(Hand::Straight(StraightStr{hi_rank: *rank}));
+    }
+    cmp_order(&ordered_straights);
+}
+
+#[test]
 fn cmp_str_flushes() {
     let ordered_ranks = Rank::all_ordered();
     // Four straight flushes are actually impossible, so don't test them.
