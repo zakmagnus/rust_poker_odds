@@ -20,6 +20,45 @@ fn cmp_order<T: Ord>(list: &[T]) {
 }
 
 #[test]
+fn quads_smoke_test() {
+    let ordered_quads = [
+        Hand::Quads(QuadsStr{rank: Two, kicker: Ace}),
+        Hand::Quads(QuadsStr{rank: Five, kicker: Six}),
+        Hand::Quads(QuadsStr{rank: King, kicker: Three}),
+        Hand::Quads(QuadsStr{rank: Ace, kicker: Four})
+            ];
+    cmp_order(&ordered_quads);
+}
+
+#[test]
+fn cmp_quads() {
+    let kicker = Three;
+    // No such thing as 5-of-a-kind.
+    let mut ordered_quads = Vec::with_capacity(13 - 1);
+    for quad_rank in Rank::all_ordered().iter() {
+        if quad_rank == &kicker {
+            continue;
+        }
+        ordered_quads.push(Hand::Quads(QuadsStr{rank: *quad_rank, kicker: kicker}));
+    }
+    cmp_order(&ordered_quads);
+}
+
+#[test]
+fn cmp_quad_kickers() {
+    let quad_rank = Queen;
+    // No such thing as 5-of-a-kind.
+    let mut ordered_quads = Vec::with_capacity(13 - 1);
+    for kicker in Rank::all_ordered().iter() {
+        if kicker == &quad_rank {
+            continue;
+        }
+        ordered_quads.push(Hand::Quads(QuadsStr{rank: quad_rank, kicker: *kicker}));
+    }
+    cmp_order(&ordered_quads);
+}
+
+#[test]
 fn cmp_straights() {
     let ordered_ranks = Rank::all_ordered();
     // Four straights are actually impossible, so don't test them.
