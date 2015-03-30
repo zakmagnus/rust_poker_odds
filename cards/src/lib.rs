@@ -30,6 +30,13 @@ pub enum Rank {
     Ace,
 }
 
+use Rank::*;
+impl Rank {
+    fn all_ordered() -> [Rank; 13] {
+        [Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King, Ace]
+    }
+}
+
 impl Ord for Rank {
     fn cmp(&self, other: &Self) -> Ordering {
         let this_index = *self as i32;

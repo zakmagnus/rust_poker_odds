@@ -1,12 +1,11 @@
 #![cfg(test)]
 
 use super::*;
-use super::Rank::*;
 use std::cmp::Ordering;
 
 #[test]
 fn cmp_whole_deck() {
-    let ordered_ranks = [Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King, Ace];
+    let ordered_ranks = Rank::all_ordered();
 
     for i in 0..12 {
         assert!(ordered_ranks[i] < ordered_ranks[i + 1]);
