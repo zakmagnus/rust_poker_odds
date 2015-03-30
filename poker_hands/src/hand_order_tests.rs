@@ -1,6 +1,7 @@
 #![cfg(test)]
 
 use super::*;
+use cards::Rank;
 use cards::Rank::*;
 
 fn cmp_order<T: Ord>(list: &[T]) {
@@ -16,6 +17,20 @@ fn cmp_order<T: Ord>(list: &[T]) {
             assert!(expected_cmp == actual_cmp)
         }
     }
+}
+
+#[test]
+fn cmp_str_flushes() {
+    let ordered_ranks = Rank::all_ordered();
+    // Four straight flushes are actually impossible, so don't test them.
+    let mut ordered_str_flushes = Vec::with_capacity(13 - 4);
+    for rank in ordered_ranks.iter() {
+        if rank < &Five {
+            continue;
+        }
+        ordered_str_flushes.push(Hand::StraightFlush(StraightFlushStr{hi_rank: *rank}));
+    }
+    cmp_order(&ordered_str_flushes);
 }
 
 #[test]

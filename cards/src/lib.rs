@@ -32,7 +32,7 @@ pub enum Rank {
 
 use Rank::*;
 impl Rank {
-    fn all_ordered() -> [Rank; 13] {
+    pub fn all_ordered() -> [Rank; 13] {
         [Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King, Ace]
     }
 }
