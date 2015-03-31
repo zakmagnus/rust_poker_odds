@@ -45,29 +45,27 @@ fn boat_smoke_test() {
 #[test]
 fn cmp_boats() {
     let two_of = Three;
-    // No such thing as 5-of-a-kind.
-    let mut ordered_boats = Vec::with_capacity(13 - 1);
-    for three_of in Rank::all_ordered().iter() {
-        if three_of == &two_of {
-            continue;
+    cmp_by_rank(|&three_of| {
+        if three_of == two_of {
+            // Impossible five-of-a-kind case
+            None
+        } else {
+            Option::Some(Hand::FullHouse(FullHouseStr{three_of: three_of, two_of: two_of}))
         }
-        ordered_boats.push(Hand::FullHouse(FullHouseStr{three_of: *three_of, two_of: two_of}));
-    }
-    cmp_order(&ordered_boats);
+    });
 }
 
 #[test]
 fn cmp_boats_by_two_of() {
     let three_of = Queen;
-    // No such thing as 5-of-a-kind.
-    let mut ordered_boats = Vec::with_capacity(13 - 1);
-    for two_of in Rank::all_ordered().iter() {
-        if two_of == &three_of {
-            continue;
+    cmp_by_rank(|&two_of| {
+        if three_of == two_of {
+            // Impossible five-of-a-kind case
+            None
+        } else {
+            Option::Some(Hand::FullHouse(FullHouseStr{three_of: three_of, two_of: two_of}))
         }
-        ordered_boats.push(Hand::FullHouse(FullHouseStr{three_of: three_of, two_of: *two_of}));
-    }
-    cmp_order(&ordered_boats);
+    });
 }
 
 #[test]
@@ -84,57 +82,51 @@ fn quads_smoke_test() {
 #[test]
 fn cmp_quads() {
     let kicker = Three;
-    // No such thing as 5-of-a-kind.
-    let mut ordered_quads = Vec::with_capacity(13 - 1);
-    for quad_rank in Rank::all_ordered().iter() {
-        if quad_rank == &kicker {
-            continue;
+    cmp_by_rank(|&quad_rank| {
+        if quad_rank == kicker {
+            // Impossible five-of-a-kind case
+            None
+        } else {
+            Option::Some(Hand::Quads(QuadsStr{rank: quad_rank, kicker: kicker}))
         }
-        ordered_quads.push(Hand::Quads(QuadsStr{rank: *quad_rank, kicker: kicker}));
-    }
-    cmp_order(&ordered_quads);
+    });
 }
 
 #[test]
 fn cmp_quad_kickers() {
     let quad_rank = Queen;
-    // No such thing as 5-of-a-kind.
-    let mut ordered_quads = Vec::with_capacity(13 - 1);
-    for kicker in Rank::all_ordered().iter() {
-        if kicker == &quad_rank {
-            continue;
+    cmp_by_rank(|&kicker| {
+        if quad_rank == kicker {
+            // Impossible five-of-a-kind case
+            None
+        } else {
+            Option::Some(Hand::Quads(QuadsStr{rank: quad_rank, kicker: kicker}))
         }
-        ordered_quads.push(Hand::Quads(QuadsStr{rank: quad_rank, kicker: *kicker}));
-    }
-    cmp_order(&ordered_quads);
+    });
 }
 
 #[test]
 fn cmp_straights() {
-    let ordered_ranks = Rank::all_ordered();
-    // Four straights are actually impossible, so don't test them.
-    let mut ordered_straights = Vec::with_capacity(13 - 4);
-    for rank in ordered_ranks.iter() {
-        if rank < &Five {
-            continue;
+    cmp_by_rank(|&rank| {
+        if rank < Five {
+            // Impossibly low straight
+            None
+        } else {
+            Option::Some(Hand::Straight(StraightStr{hi_rank: rank}))
         }
-        ordered_straights.push(Hand::Straight(StraightStr{hi_rank: *rank}));
-    }
-    cmp_order(&ordered_straights);
+    });
 }
 
 #[test]
 fn cmp_str_flushes() {
-    let ordered_ranks = Rank::all_ordered();
-    // Four straight flushes are actually impossible, so don't test them.
-    let mut ordered_str_flushes = Vec::with_capacity(13 - 4);
-    for rank in ordered_ranks.iter() {
-        if rank < &Five {
-            continue;
+    cmp_by_rank(|&rank| {
+        if rank < Five {
+            // Impossibly low straight flush
+            None
+        } else {
+            Option::Some(Hand::StraightFlush(StraightFlushStr{hi_rank: rank}))
         }
-        ordered_str_flushes.push(Hand::StraightFlush(StraightFlushStr{hi_rank: *rank}));
-    }
-    cmp_order(&ordered_str_flushes);
+    });
 }
 
 #[test]
