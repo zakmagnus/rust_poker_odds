@@ -19,6 +19,18 @@ fn cmp_order<T: Ord>(list: &[T]) {
     }
 }
 
+fn cmp_by_rank<T, M>(maker: M)
+        where T: Ord,
+              M: FnMut(&Rank) -> Option<T> {
+    let ranks = Rank::all_ordered();
+    let mut list: Vec<T> = Vec::with_capacity(13);
+    let things = ranks.iter().filter_map(maker);
+    for thing in things {
+        list.push(thing);
+    }
+    cmp_order(&list);
+}
+
 #[test]
 fn boat_smoke_test() {
     let ordered_boats = [
