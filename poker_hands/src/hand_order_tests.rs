@@ -1,26 +1,36 @@
 #![cfg(test)]
 
+use std::fmt::Debug;
 use super::*;
 use cards::Rank;
 use cards::Rank::*;
 
-fn cmp_order<T: Ord>(list: &[T]) {
+fn cmp_order<T: Ord + Debug>(list: &[T]) {
     for i in 0..(list.len() - 1) {
-        assert!(list[i] < list[i + 1]);
-        assert!(list[i] == list[i]);
+        let this = &list[i];
+        let next = &list[i + 1];
+        if this >= next {
+            panic!("{:?} >= {:?}", this, next);
+        }
+        assert_eq!(this, this);
     }
 
     for i in 0..list.len() {
         for j in 0..list.len() {
             let expected_cmp = i.cmp(&j);
-            let actual_cmp = list[i].cmp(&list[j]);
-            assert!(expected_cmp == actual_cmp)
+            let this = &list[i];
+            let other = &list[j];
+            let actual_cmp = this.cmp(other);
+            if expected_cmp != actual_cmp {
+                panic!("{:?} {:?} {:?}, but expected {:?}", this, actual_cmp, other,
+                        expected_cmp);
+            }
         }
     }
 }
 
 fn cmp_by_rank<T, M>(maker: M)
-        where T: Ord,
+        where T: Ord + Debug,
               M: FnMut(&Rank) -> Option<T> {
     let ranks = Rank::all_ordered();
     let mut list: Vec<T> = Vec::with_capacity(13);
@@ -29,6 +39,25 @@ fn cmp_by_rank<T, M>(maker: M)
         list.push(thing);
     }
     cmp_order(&list);
+}
+
+#[test]
+fn trips_smoke_test() {
+    let ordered_tripses = [
+            Hand::Trips(TripsStr{rank: Two, kickers: [Queen, Three]}),
+            Hand::Trips(TripsStr{rank: Two, kickers: [Queen, Ten]}),
+            Hand::Trips(TripsStr{rank: Two, kickers: [Ace, Ten]}),
+            Hand::Trips(TripsStr{rank: Five, kickers: [Queen, Three]}),
+            Hand::Trips(TripsStr{rank: Five, kickers: [King, Queen]}),
+            Hand::Trips(TripsStr{rank: Ten, kickers: [Eight, Four]}),
+            Hand::Trips(TripsStr{rank: Ten, kickers: [Jack, Four]}),
+            Hand::Trips(TripsStr{rank: Ten, kickers: [King, Queen]}),
+            Hand::Trips(TripsStr{rank: King, kickers: [Jack, Four]}),
+            Hand::Trips(TripsStr{rank: King, kickers: [Ace, Four]}),
+            Hand::Trips(TripsStr{rank: Ace, kickers: [Three, Two]}),
+            Hand::Trips(TripsStr{rank: Ace, kickers: [Six, Two]})
+            ];
+    cmp_order(&ordered_tripses);
 }
 
 #[test]
