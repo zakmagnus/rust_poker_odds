@@ -42,6 +42,31 @@ fn cmp_by_rank<T, M>(maker: M)
 }
 
 #[test]
+fn trips_test() {
+    let tripper = |trips_rank: Rank, lo_kicker: Rank, hi_kicker: Rank| {
+        if trips_rank == lo_kicker ||
+           trips_rank == hi_kicker ||
+           lo_kicker == hi_kicker {
+            None
+        } else {
+            Some(Hand::Trips(TripsStr{rank: trips_rank, kickers: [hi_kicker, lo_kicker]}))
+        }
+    };
+    let trips_rank = Ten;
+    let lo_kicker = Two;
+    let hi_kicker = Ace;
+    cmp_by_rank(|&rank| {
+        tripper(rank, lo_kicker, hi_kicker)
+    });
+    cmp_by_rank(|&rank| {
+        tripper(trips_rank, lo_kicker, rank)
+    });
+    cmp_by_rank(|&rank| {
+        tripper(trips_rank, rank, hi_kicker)
+    });
+}
+
+#[test]
 fn trips_smoke_test() {
     let ordered_tripses = [
             Hand::Trips(TripsStr{rank: Two, kickers: [Queen, Three]}),
