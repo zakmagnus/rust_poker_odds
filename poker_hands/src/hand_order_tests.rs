@@ -42,6 +42,50 @@ fn cmp_by_rank<T, M>(maker: M)
 }
 
 #[test]
+fn two_pair_test() {
+    let two_pairer = |hi_rank: Rank, lo_rank: Rank, kicker: Rank| {
+        if hi_rank == lo_rank ||
+           hi_rank == kicker ||
+           lo_rank == kicker {
+            None
+        } else {
+            Some(Hand::TwoPair(TwoPairStr{hi_rank: hi_rank, lo_rank: lo_rank, kicker: kicker}))
+        }
+    };
+    let hi_rank = Ten;
+    let lo_rank = Two;
+    let kicker = Ace;
+    cmp_by_rank(|&rank| {
+        two_pairer(rank, lo_rank, kicker)
+    });
+    cmp_by_rank(|&rank| {
+        two_pairer(hi_rank, lo_rank, rank)
+    });
+    cmp_by_rank(|&rank| {
+        two_pairer(hi_rank, rank, kicker)
+    });
+}
+
+#[test]
+fn two_pair_smoke_test() {
+    let ordered_two_pairs = [
+            Hand::TwoPair(TwoPairStr{hi_rank: Two, lo_rank: Queen, kicker: Three}),
+            Hand::TwoPair(TwoPairStr{hi_rank: Two, lo_rank: Queen, kicker: Ten}),
+            Hand::TwoPair(TwoPairStr{hi_rank: Two, lo_rank: Ace, kicker: Ten}),
+            Hand::TwoPair(TwoPairStr{hi_rank: Five, lo_rank: Queen, kicker: Three}),
+            Hand::TwoPair(TwoPairStr{hi_rank: Five, lo_rank: King, kicker: Queen}),
+            Hand::TwoPair(TwoPairStr{hi_rank: Ten, lo_rank: Eight, kicker: Four}),
+            Hand::TwoPair(TwoPairStr{hi_rank: Ten, lo_rank: Jack, kicker: Four}),
+            Hand::TwoPair(TwoPairStr{hi_rank: Ten, lo_rank: King, kicker: Queen}),
+            Hand::TwoPair(TwoPairStr{hi_rank: King, lo_rank: Jack, kicker: Four}),
+            Hand::TwoPair(TwoPairStr{hi_rank: King, lo_rank: Ace, kicker: Four}),
+            Hand::TwoPair(TwoPairStr{hi_rank: Ace, lo_rank: Three, kicker: Two}),
+            Hand::TwoPair(TwoPairStr{hi_rank: Ace, lo_rank: Six, kicker: Two})
+            ];
+    cmp_order(&ordered_two_pairs);
+}
+
+#[test]
 fn trips_test() {
     let tripper = |trips_rank: Rank, lo_kicker: Rank, hi_kicker: Rank| {
         if trips_rank == lo_kicker ||
