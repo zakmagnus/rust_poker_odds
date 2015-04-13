@@ -42,6 +42,43 @@ fn cmp_by_rank<T, M>(maker: M)
 }
 
 #[test]
+fn air_test() {
+    let airer = |ranks: &[Rank; 5]| {
+        if has_dups(ranks) {
+            return None;
+        }
+        Some(Hand::HiCard(HiCardStr{ranks: *ranks}))
+    };
+
+    let rank_1 = King;
+    let rank_2 = Jack;
+    let rank_3 = Ten;
+    let rank_4 = Four;
+    let rank_5 = Three;
+    cmp_by_rank(|&rank| { airer(&[rank, rank_2, rank_3, rank_4, rank_5]) });
+    cmp_by_rank(|&rank| { airer(&[rank_1, rank, rank_3, rank_4, rank_5]) });
+    cmp_by_rank(|&rank| { airer(&[rank_1, rank_2, rank, rank_4, rank_5]) });
+    cmp_by_rank(|&rank| { airer(&[rank_1, rank_2, rank_3, rank, rank_5]) });
+    cmp_by_rank(|&rank| { airer(&[rank_1, rank_2, rank_3, rank_4, rank]) });
+}
+
+#[test]
+fn air_smoke_test() {
+    let ordered_airs = [
+        Hand::HiCard(HiCardStr{ranks: [Nine, Eight, Six, Three, Two]}),
+        Hand::HiCard(HiCardStr{ranks: [Jack, Eight, Six, Three, Two]}),
+        Hand::HiCard(HiCardStr{ranks: [Jack, Eight, Seven, Three, Two]}),
+        Hand::HiCard(HiCardStr{ranks: [Jack, Nine, Seven, Three, Two]}),
+        Hand::HiCard(HiCardStr{ranks: [King, Queen, Ten, Nine, Eight]}),
+        Hand::HiCard(HiCardStr{ranks: [King, Queen, Jack, Ten, Two]}),
+        Hand::HiCard(HiCardStr{ranks: [Ace, Six, Five, Three, Two]}),
+        Hand::HiCard(HiCardStr{ranks: [Ace, Jack, Eight, Six, Two]}),
+        Hand::HiCard(HiCardStr{ranks: [Ace, Jack, Eight, Six, Three]})
+        ];
+    cmp_order(&ordered_airs);
+}
+
+#[test]
 fn pair_test() {
     let pairer = |rank, kickers: &[Rank; 3]| {
         if contains(kickers, &rank) {
