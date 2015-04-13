@@ -42,6 +42,72 @@ fn cmp_by_rank<T, M>(maker: M)
 }
 
 #[test]
+fn pair_test() {
+    let pairer = |rank, kickers: &[Rank; 3]| {
+        if contains(kickers, &rank) {
+            return None;
+        }
+        if has_dups(kickers) {
+            return None;
+        }
+        Some(Hand::Pair(PairStr{rank: rank, kickers: *kickers}))
+    };
+
+    let pair_rank = Nine;
+    let kicker_1 = Ace;
+    let kicker_2 = Eight;
+    let kicker_3 = Five;
+    cmp_by_rank(|&rank| { pairer(pair_rank, &[kicker_1, kicker_2, rank]) });
+    cmp_by_rank(|&rank| { pairer(pair_rank, &[kicker_1, rank, kicker_3]) });
+    cmp_by_rank(|&rank| { pairer(pair_rank, &[rank, kicker_2, kicker_3]) });
+    cmp_by_rank(|&rank| { pairer(rank, &[kicker_1, kicker_2, kicker_3]) });
+}
+
+fn contains<T: Eq>(list: &[T], thing: &T) -> bool {
+    for listed_thing in list {
+        if listed_thing == thing {
+            return true;
+        }
+    }
+    false
+}
+
+fn has_dups<T: Eq>(list: &[T]) -> bool {
+    for i in 0..(list.len() - 1) {
+        let this = &list[i];
+        let next = &list[i + 1];
+        if this == next {
+            return true;
+        }
+    }
+    false
+}
+
+#[test]
+fn pair_smoke_test() {
+    let ordered_pairs = [
+        Hand::Pair(PairStr{rank: Two, kickers: [Ten, Five, Three]}),
+        Hand::Pair(PairStr{rank: Two, kickers: [King, Queen, Ten]}),
+        Hand::Pair(PairStr{rank: Two, kickers: [Ace, Five, Four]}),
+        Hand::Pair(PairStr{rank: Two, kickers: [Ace, Jack, Ten]}),
+        Hand::Pair(PairStr{rank: Four, kickers: [Six, Three, Two]}),
+        Hand::Pair(PairStr{rank: Four, kickers: [King, Jack, Two]}),
+        Hand::Pair(PairStr{rank: Four, kickers: [Ace, Jack, Ten]}),
+        Hand::Pair(PairStr{rank: Nine, kickers: [Four, Three, Two]}),
+        Hand::Pair(PairStr{rank: Nine, kickers: [King, Three, Two]}),
+        Hand::Pair(PairStr{rank: Nine, kickers: [King, Jack, Two]}),
+        Hand::Pair(PairStr{rank: Nine, kickers: [King, Jack, Ten]}),
+        Hand::Pair(PairStr{rank: Queen, kickers: [Five, Three, Two]}),
+        Hand::Pair(PairStr{rank: Queen, kickers: [King, Jack, Ten]}),
+        Hand::Pair(PairStr{rank: Queen, kickers: [Ace, Three, Two]}),
+        Hand::Pair(PairStr{rank: Ace, kickers: [Seven, Three, Two]}),
+        Hand::Pair(PairStr{rank: Ace, kickers: [Queen, Ten, Nine]}),
+        Hand::Pair(PairStr{rank: Ace, kickers: [King, Seven, Two]})
+            ];
+    cmp_order(&ordered_pairs);
+}
+
+#[test]
 fn two_pair_test() {
     let two_pairer = |hi_rank: Rank, lo_rank: Rank, kicker: Rank| {
         if hi_rank == lo_rank ||
