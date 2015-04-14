@@ -87,3 +87,7 @@ impl PartialEq for Card {
         self.cmp(other) == Ordering::Equal
     }
 }
+
+pub fn card(rank: Rank, suit: Suit) -> Card {
+    Card{rank: rank, suit: suit}
+}

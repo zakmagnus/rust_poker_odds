@@ -3,6 +3,7 @@
 extern crate cards;
 
 mod hand_order_tests;
+mod hand_making_tests;
 
 use cards::{Rank, Card};
 use std::fmt::{Debug, Formatter};
@@ -59,7 +60,7 @@ impl Hand {
     // Makes five cards into a hand.
     pub fn get_hand(cards: &[Card]) -> Box<Hand> {
         assert!(cards.len() == 5);
-        for i in 0..5 {
+        for i in 0..4 {
             assert!(cards[i] > cards[i + 1]);
         }
 
