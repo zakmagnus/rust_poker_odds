@@ -61,7 +61,7 @@ impl Hand {
     pub fn get_hand(cards: &[Card]) -> Box<Hand> {
         assert!(cards.len() == 5);
         for i in 0..4 {
-            assert!(cards[i] > cards[i + 1]);
+            assert!(cards[i].rank >= cards[i + 1].rank);
         }
 
         try_getting_hand!(hand_builder::get_straight_flush, StraightFlush, cards);
@@ -215,15 +215,11 @@ mod hand_builder {
     pub fn get_two_pair(cards: &[Card]) -> Option<Box<TwoPairStr>> {
         let mut high_pair_rank = None;
         let mut low_pair_rank = None;
-        let mut kicker = Rank::Ace; // Initial dummy value.
         let mut i = 1;
-        while i < 4 {
+        while i < 5 {
             let this_rank = cards[i].rank;
             let prev_rank = cards[i - 1].rank;
-            if this_rank != prev_rank {
-                kicker = prev_rank;
-                i += 1;
-            } else {
+            if this_rank == prev_rank {
                 if !high_pair_rank.is_some() {
                     high_pair_rank = Some(this_rank);
                 } else if !low_pair_rank.is_some() {
@@ -233,6 +229,8 @@ mod hand_builder {
                         high_pair_rank, low_pair_rank, this_rank, cards);
                 }
                 i += 2; // Found a pair, so don't compare the next rank to this one.
+            } else {
+                i += 1;
             }
         }
 
@@ -240,8 +238,19 @@ mod hand_builder {
             return None
         }
 
-        Some(box TwoPairStr{hi_rank: high_pair_rank.unwrap(),
-            lo_rank: low_pair_rank.unwrap(), kicker: kicker})
+        let hi_rank = high_pair_rank.unwrap();
+        let lo_rank = low_pair_rank.unwrap();
+
+        let mut kicker = cards[0].rank;
+        for i in 1..5 {
+            let rank = cards[i].rank;
+            if rank != hi_rank && rank != lo_rank {
+                kicker = rank;
+                break;
+            }
+        }
+
+        Some(box TwoPairStr{hi_rank: hi_rank, lo_rank: lo_rank, kicker: kicker})
     }
 
     pub fn get_pair(cards: &[Card]) -> Option<Box<PairStr>> {
