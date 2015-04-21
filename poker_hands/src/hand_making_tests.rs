@@ -25,6 +25,12 @@ fn air_test() {
 
     assert_makes_hand([card(Ten, Spades), card(Eight, Diamonds), card(Seven, Clubs), card(Four, Spades), card(Two, Hearts)],
             HiCard(HiCardStr{ranks: [Ten, Eight, Seven, Four, Two]}));
+
+    assert_makes_hand([card(King, Spades), card(Five, Hearts), card(Four, Clubs), card(Three, Spades), card(Two, Spades)],
+            HiCard(HiCardStr{ranks: [King, Five, Four, Three, Two]}));
+
+    assert_makes_hand([card(Ace, Spades), card(Six, Hearts), card(Four, Clubs), card(Three, Spades), card(Two, Spades)],
+            HiCard(HiCardStr{ranks: [Ace, Six, Four, Three, Two]}));
 }
 
 #[test]
@@ -67,4 +73,22 @@ fn trips_test() {
 
     assert_makes_hand([card(Ace, Clubs), card(King, Diamonds), card(Queen, Clubs), card(Queen, Diamonds), card(Queen, Spades)],
             Trips(TripsStr{rank: Queen, kickers: [Ace, King]}));
+}
+
+#[test]
+fn straight_test() {
+    assert_makes_hand([card(Queen, Clubs), card(Jack, Diamonds), card(Ten, Clubs), card(Nine, Diamonds), card(Eight, Spades)],
+            Straight(StraightStr{hi_rank: Queen}));
+
+    assert_makes_hand([card(Ace, Spades), card(King, Spades), card(Queen, Clubs), card(Jack, Spades), card(Ten, Spades)],
+            Straight(StraightStr{hi_rank: Ace}));
+
+    assert_makes_hand([card(Ace, Spades), card(Five, Hearts), card(Four, Clubs), card(Three, Spades), card(Two, Spades)],
+            Straight(StraightStr{hi_rank: Five}));
+
+    assert_makes_hand([card(Six, Diamonds), card(Five, Hearts), card(Four, Clubs), card(Three, Spades), card(Two, Spades)],
+            Straight(StraightStr{hi_rank: Six}));
+
+    assert_makes_hand([card(Eight, Clubs), card(Seven, Diamonds), card(Six, Diamonds), card(Five, Diamonds), card(Four, Diamonds)],
+            Straight(StraightStr{hi_rank: Eight}));
 }

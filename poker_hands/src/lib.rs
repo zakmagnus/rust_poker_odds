@@ -176,22 +176,24 @@ mod hand_builder {
     }
 
     pub fn get_straight(cards: &[Card]) -> Option<Box<StraightStr>> {
+        let mut wheel = false;
         for i in 1..5 {
             let this_card = cards[i];
             let prev_card = cards[i - 1];
             // Wheel detection
-            if i == 1 && prev_card.rank == Rank::Ace && this_card.rank == Rank::Two {
+            if i == 1 && prev_card.rank == Rank::Ace && this_card.rank == Rank::Five {
+                wheel = true;
                 continue;
             }
             let this_rank_index = cards[i].rank as i32;
             let prev_rank_index = cards[i - 1].rank as i32;
-            if this_rank_index != prev_rank_index + 1 {
+            if this_rank_index + 1 != prev_rank_index {
                 return None
             }
         }
         // Straight detected! Now make sure to get the wheel right.
-        if cards[0].rank == Rank::Ace {
-            Some(box StraightStr{hi_rank: Rank::Four})
+        if wheel {
+            Some(box StraightStr{hi_rank: Rank::Five})
         } else {
             Some(box StraightStr{hi_rank: cards[0].rank})
         }
@@ -433,7 +435,7 @@ fn copy_all<T: Copy> (dest: & mut Vec<T>, src: &[T]) {
 impl Debug for Hand {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         let string = match *self {
-            HiCard(HiCardStr{ref ranks}) => format!("{:?}", ranks),
+            HiCard(HiCardStr{ref ranks}) => format!("High card, {:?}", ranks),
             Pair(PairStr{rank, ref kickers}) => format!("Pair of {:?}s, {:?} kickers", rank, kickers),
             TwoPair(TwoPairStr{hi_rank, lo_rank, kicker}) => format!("Two pair, {:?} and {:?}, {:?} kicker", hi_rank, lo_rank, kicker),
             Trips(TripsStr{rank, ref kickers}) => format!("Trip {:?}s, {:?} kickers", rank, kickers),
