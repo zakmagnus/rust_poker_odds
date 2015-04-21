@@ -107,3 +107,24 @@ fn flush_making_test() {
     assert_makes_hand([card(Ace, Hearts), card(Six, Hearts), card(Four, Hearts), card(Three, Hearts), card(Two, Hearts)],
             Flush(FlushStr{ranks: [Ace, Six, Four, Three, Two]}));
 }
+
+#[test]
+fn boat_making_test() {
+    assert_makes_hand([card(Jack, Spades), card(Jack, Hearts), card(Jack, Diamonds), card(Six, Clubs), card(Six, Spades)],
+            FullHouse(FullHouseStr{three_of: Jack, two_of: Six}));
+
+    assert_makes_hand([card(Ace, Clubs), card(Ace, Diamonds), card(Nine, Spades), card(Nine, Hearts), card(Nine, Diamonds)],
+            FullHouse(FullHouseStr{three_of: Nine, two_of: Ace}));
+
+    assert_makes_hand([card(King, Clubs), card(King, Diamonds), card(Queen, Clubs), card(Queen, Diamonds), card(Queen, Spades)],
+            FullHouse(FullHouseStr{three_of: Queen, two_of: King}));
+
+    assert_makes_hand([card(King, Clubs), card(King, Diamonds), card(King, Hearts), card(Two, Diamonds), card(Two, Spades)],
+            FullHouse(FullHouseStr{three_of: King, two_of: Two}));
+
+    assert_makes_hand([card(Ace, Clubs), card(Ace, Diamonds), card(Two, Spades), card(Two, Hearts), card(Two, Diamonds)],
+            FullHouse(FullHouseStr{three_of: Two, two_of: Ace}));
+
+    assert_makes_hand([card(Ace, Clubs), card(Ace, Diamonds), card(Ace, Spades), card(Three, Hearts), card(Three, Diamonds)],
+            FullHouse(FullHouseStr{three_of: Ace, two_of: Three}));
+}

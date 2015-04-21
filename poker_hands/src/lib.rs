@@ -149,7 +149,7 @@ mod hand_builder {
         if cards[0].rank != cards[1].rank {
             return None
         }
-        if cards[4].rank != cards[1].rank {
+        if cards[3].rank != cards[4].rank {
             return None
         }
 
