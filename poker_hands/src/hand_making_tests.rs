@@ -56,3 +56,15 @@ fn two_pair_test() {
     assert_makes_hand([card(Ace, Diamonds), card(Three, Spades), card(Three, Diamonds), card(Two, Clubs), card(Two, Spades)],
             TwoPair(TwoPairStr{hi_rank: Three, lo_rank: Two, kicker: Ace}));
 }
+
+#[test]
+fn trips_test() {
+    assert_makes_hand([card(Jack, Spades), card(Jack, Hearts), card(Jack, Diamonds), card(Six, Clubs), card(Five, Spades)],
+            Trips(TripsStr{rank: Jack, kickers: [Six, Five]}));
+
+    assert_makes_hand([card(Ace, Clubs), card(Nine, Spades), card(Nine, Hearts), card(Nine, Diamonds), card(Five, Spades)],
+            Trips(TripsStr{rank: Nine, kickers: [Ace, Five]}));
+
+    assert_makes_hand([card(Ace, Clubs), card(King, Diamonds), card(Queen, Clubs), card(Queen, Diamonds), card(Queen, Spades)],
+            Trips(TripsStr{rank: Queen, kickers: [Ace, King]}));
+}
