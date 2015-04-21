@@ -19,7 +19,7 @@ fn assert_makes_hand(cards: [Card; 5], hand: Hand) {
 }
 
 #[test]
-fn air_test() {
+fn air_making_test() {
     assert_makes_hand([card(Ace, Spades), card(Queen, Spades), card(Jack, Spades), card(Nine, Spades), card(Eight, Hearts)],
             HiCard(HiCardStr{ranks: [Ace, Queen, Jack, Nine, Eight]}));
 
@@ -34,7 +34,7 @@ fn air_test() {
 }
 
 #[test]
-fn pair_test() {
+fn pair_making_test() {
     assert_makes_hand([card(Ace, Spades), card(Ace, Hearts), card(Jack, Spades), card(Nine, Spades), card(Eight, Hearts)],
             Pair(PairStr{rank: Ace, kickers: [Jack, Nine, Eight]}));
 
@@ -49,7 +49,7 @@ fn pair_test() {
 }
 
 #[test]
-fn two_pair_test() {
+fn two_pair_making_test() {
     assert_makes_hand([card(Queen, Spades), card(Jack, Hearts), card(Jack, Diamonds), card(Six, Clubs), card(Six, Spades)],
             TwoPair(TwoPairStr{hi_rank: Jack, lo_rank: Six, kicker: Queen}));
 
@@ -64,7 +64,7 @@ fn two_pair_test() {
 }
 
 #[test]
-fn trips_test() {
+fn trips_making_test() {
     assert_makes_hand([card(Jack, Spades), card(Jack, Hearts), card(Jack, Diamonds), card(Six, Clubs), card(Five, Spades)],
             Trips(TripsStr{rank: Jack, kickers: [Six, Five]}));
 
@@ -76,7 +76,7 @@ fn trips_test() {
 }
 
 #[test]
-fn straight_test() {
+fn straight_making_test() {
     assert_makes_hand([card(Queen, Clubs), card(Jack, Diamonds), card(Ten, Clubs), card(Nine, Diamonds), card(Eight, Spades)],
             Straight(StraightStr{hi_rank: Queen}));
 
