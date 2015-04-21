@@ -92,3 +92,18 @@ fn straight_making_test() {
     assert_makes_hand([card(Eight, Clubs), card(Seven, Diamonds), card(Six, Diamonds), card(Five, Diamonds), card(Four, Diamonds)],
             Straight(StraightStr{hi_rank: Eight}));
 }
+
+#[test]
+fn flush_making_test() {
+    assert_makes_hand([card(Ace, Spades), card(Queen, Spades), card(Jack, Spades), card(Nine, Spades), card(Eight, Spades)],
+            Flush(FlushStr{ranks: [Ace, Queen, Jack, Nine, Eight]}));
+
+    assert_makes_hand([card(Ten, Diamonds), card(Eight, Diamonds), card(Seven, Diamonds), card(Four, Diamonds), card(Two, Diamonds)],
+            Flush(FlushStr{ranks: [Ten, Eight, Seven, Four, Two]}));
+
+    assert_makes_hand([card(King, Clubs), card(Five, Clubs), card(Four, Clubs), card(Three, Clubs), card(Two, Clubs)],
+            Flush(FlushStr{ranks: [King, Five, Four, Three, Two]}));
+
+    assert_makes_hand([card(Ace, Hearts), card(Six, Hearts), card(Four, Hearts), card(Three, Hearts), card(Two, Hearts)],
+            Flush(FlushStr{ranks: [Ace, Six, Four, Three, Two]}));
+}
