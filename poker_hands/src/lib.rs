@@ -5,7 +5,7 @@ extern crate cards;
 mod hand_order_tests;
 mod hand_making_tests;
 
-use cards::{Rank, Card};
+use cards::{Rank, Suit, Card};
 use std::fmt::{Debug, Formatter};
 use std::cmp::{Eq, Ordering};
 
@@ -45,17 +45,153 @@ macro_rules! try_getting_hand(
     };
 );
 
+// Takes some cards and returns all five-card subsets of them.
+struct AllFiveCardSubsets<'a> {
+    // 5 or more cards to make hands from.
+    all_cards: & 'a [Card],
+    // Which of the cards to use now. All false means the iterator is empty.
+    current_indices: Vec<bool>
+}
+
+impl<'a> AllFiveCardSubsets<'a> {
+    pub fn create(cards: & 'a [Card]) -> AllFiveCardSubsets<'a> {
+        assert!(cards.len() >= 5);
+        for i in 1..cards.len() {
+            assert!(cards[i] <= cards[i - 1]);
+        }
+
+        let current_indices = AllFiveCardSubsets::init_indices(cards.len());
+        AllFiveCardSubsets{all_cards: cards, current_indices: current_indices}
+    }
+
+    fn init_indices(total_cards: usize) -> Vec<bool> {
+        // Start by using the first 5 cards.
+        let mut indices = vec![true; total_cards];
+        for index in 5..total_cards {
+            indices[index] = false;
+        }
+        indices
+    }
+
+    fn make_next_cards(&self) -> [Card; 5] {
+        let total_cards = self.all_cards.len();
+        let mut cards = [Card{rank: Rank::Ace, suit: Suit::Spades}; 5]; // Dummy values
+        let mut cards_upto = 0;
+        for index in 0..total_cards {
+            if self.current_indices[index] {
+                cards[cards_upto] = self.all_cards[index];
+                cards_upto += 1;
+            }
+        }
+        assert!(cards_upto == 5); // Make sure all dummies were overwritten.
+        cards
+    }
+
+    // Assumes the indices have a next state. In particular, they are NOT all false.
+    fn increment_current_indices(&mut self) {
+        let total_indices = self.current_indices.len();
+        let mut first_false_index = total_indices;
+        for index in 0..total_indices {
+            if !self.current_indices[index] {
+                first_false_index = index;
+                break;
+            }
+        }
+        assert!(first_false_index < total_indices);
+
+        // Common case - move the first false back by one.
+        if first_false_index > 0 {
+            self.current_indices[first_false_index] = true;
+            self.current_indices[first_false_index - 1] = false;
+            return;
+        }
+
+        // Rare case - first index is false. Find the first run of trues, and move lots of flags around.
+        //TODO actually a slight generalization of this should handle all cases
+        let total_indices = self.current_indices.len();
+        let mut num_consecutive_trues = 0;
+        let mut end_of_trues_index = total_indices + 1; // exclusive
+        for index in 1..total_indices {
+            if self.current_indices[index] {
+                num_consecutive_trues += 1;
+                continue;
+            }
+            if num_consecutive_trues > 0 {
+                // This is the first false after a run of trues.
+                end_of_trues_index = index;
+                break;
+            }
+        }
+        assert!(num_consecutive_trues > 0);
+
+        if end_of_trues_index > total_indices {
+            // No end to the trues - they are the last k flags. Move to the final state now.
+            self.blank_current_indices();
+            return;
+        }
+
+        // Make the first false after the run of trues into a true.
+        self.current_indices[end_of_trues_index] = true;
+        // Move the remaining trues to the front of the list.
+        for index in 0..end_of_trues_index {
+            if index < num_consecutive_trues - 1 {
+                self.current_indices[index] = true;
+            } else {
+                self.current_indices[index] = false;
+            }
+        }
+    }
+
+    fn no_more_cards(&self) -> bool {
+        // No flagged on = no more hands to return.
+        for index_flag in self.current_indices.iter() {
+            if *index_flag {
+                return false;
+            }
+        }
+        true
+    }
+
+    fn blank_current_indices(&mut self) {
+        for index in 0..self.current_indices.len() {
+            self.current_indices[index] = false;
+        }
+    }
+}
+
+impl<'a> Iterator for AllFiveCardSubsets<'a> {
+    type Item = [Card; 5];
+
+    fn next(&mut self) -> Option<[Card; 5]> {
+        if self.no_more_cards() {
+            return None
+        }
+        let next_cards = self.make_next_cards();
+
+        self.increment_current_indices();
+
+        Some(next_cards)
+    }
+}
+
 impl Hand {
     // Pick out the best five-card hand.
     pub fn best_hand_of(cards: &[Card]) -> Hand {
         assert!(cards.len() >= 5);
 
-        //TODO try all possible 5-card hands
-        //TODO return the best one
-        Straight(StraightStr{hi_rank: Rank::Ace})//TODO
+        // Starting value - worst hand ever.
+        let mut best_hand = HiCard(HiCardStr{ranks: [Rank::Seven, Rank::Five, Rank::Four, Rank::Three, Rank::Two]});
+        for five_cards in AllFiveCardSubsets::create(cards) {
+            //TODO hm, why is this a box in the first place?
+            let this_hand = *Hand::get_hand(&five_cards);
+            if this_hand > best_hand {
+                best_hand = this_hand;
+            }
+        }
 
-        //XXX an alternate algorithm is to actually try to build up hands sequentially
+        best_hand
     }
+
 
     // Makes five cards into a hand.
     pub fn get_hand(cards: &[Card]) -> Box<Hand> {

@@ -4,7 +4,7 @@ use std::fmt::{Debug, Formatter};
 
 mod tests;
 
-#[derive(Eq, PartialEq, Ord, PartialOrd, Copy, Debug)]
+#[derive(Eq, PartialEq, Ord, PartialOrd, Copy, Clone, Debug)]
 pub enum Suit {
     Spades,
     Hearts,
@@ -12,7 +12,7 @@ pub enum Suit {
     Diamonds,
 }
 
-#[derive(Copy, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub enum Rank {
     // The order here is used for comparison. Note the high ace.
     Two,
@@ -58,7 +58,7 @@ impl PartialEq for Rank {
     }
 }
 
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct Card { pub suit: Suit, pub rank: Rank }
 impl Debug for Card {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
