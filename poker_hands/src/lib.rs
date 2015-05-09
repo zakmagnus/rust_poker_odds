@@ -1,5 +1,3 @@
-#![feature(box_syntax)]
-#![feature(box_patterns)]
 extern crate cards;
 
 mod hand_order_tests;
@@ -39,7 +37,7 @@ use Hand::{HiCard, Pair, TwoPair, Trips, Straight, Flush, FullHouse, Quads, Stra
 macro_rules! try_getting_hand(
     ($function:path, $hand_type:path, $cards:ident) => {
         match $function($cards) {
-            Some(box hand) => return Box::new($hand_type(hand)),
+            Some(hand) => return $hand_type(hand),
             None => {},
         };
     };
@@ -182,8 +180,7 @@ impl Hand {
         // Starting value - worst hand ever.
         let mut best_hand = HiCard(HiCardStr{ranks: [Rank::Seven, Rank::Five, Rank::Four, Rank::Three, Rank::Two]});
         for five_cards in AllFiveCardSubsets::create(cards) {
-            //TODO hm, why is this a box in the first place?
-            let this_hand = *Hand::get_hand(&five_cards);
+            let this_hand = Hand::get_hand(&five_cards);
             if this_hand > best_hand {
                 best_hand = this_hand;
             }
@@ -194,7 +191,7 @@ impl Hand {
 
 
     // Makes five cards into a hand.
-    pub fn get_hand(cards: &[Card]) -> Box<Hand> {
+    pub fn get_hand(cards: &[Card]) -> Hand {
         assert!(cards.len() == 5);
         for i in 0..4 {
             assert!(cards[i].rank >= cards[i + 1].rank);
@@ -208,7 +205,7 @@ impl Hand {
         try_getting_hand!(hand_builder::get_trips, Trips, cards);
         try_getting_hand!(hand_builder::get_two_pair, TwoPair, cards);
         try_getting_hand!(hand_builder::get_pair, Pair, cards);
-        box HiCard(*hand_builder::get_hi_card(cards))
+        HiCard(hand_builder::get_hi_card(cards))
     }
 }
 
@@ -229,7 +226,7 @@ mod hand_builder {
     already sorted by rank.
     */
 
-    pub fn get_straight_flush(cards: &[Card]) -> Option<Box<StraightFlushStr>> {
+    pub fn get_straight_flush(cards: &[Card]) -> Option<StraightFlushStr> {
         let flush_suit = get_flush_suit(cards);
         if !flush_suit.is_some() {
             return None;
@@ -238,22 +235,22 @@ mod hand_builder {
 
         let straight_candidate = get_straight(cards);
         match straight_candidate {
-            Some(box StraightStr{hi_rank}) => Some(box StraightFlushStr{hi_rank: hi_rank}),
+            Some(StraightStr{hi_rank}) => Some(StraightFlushStr{hi_rank: hi_rank}),
             None => None
         }
     }
 
-    pub fn get_flush(cards: &[Card]) -> Option<Box<FlushStr>> {
+    pub fn get_flush(cards: &[Card]) -> Option<FlushStr> {
         let flush_suit = get_flush_suit(cards);
         if !flush_suit.is_some() {
             return None; // No suit, no flush!
         }
 
-        let box HiCardStr{ranks} = get_hi_card(cards);
-        Some(box FlushStr{ranks: ranks})
+        let HiCardStr{ranks} = get_hi_card(cards);
+        Some(FlushStr{ranks: ranks})
     }
 
-    pub fn get_quads(cards: &[Card]) -> Option<Box<QuadsStr>> {
+    pub fn get_quads(cards: &[Card]) -> Option<QuadsStr> {
         // In sorted quads, either the first or last two cards must have the same rank.
         let high_kicker = cards[0].rank != cards[1].rank;
         let low_kicker = cards[3].rank != cards[4].rank;
@@ -274,10 +271,10 @@ mod hand_builder {
                 return None
             }
         }
-        Some(box QuadsStr{rank: quad_rank, kicker: kicker})
+        Some(QuadsStr{rank: quad_rank, kicker: kicker})
     }
 
-    pub fn get_full_house(cards: &[Card]) -> Option<Box<FullHouseStr>> {
+    pub fn get_full_house(cards: &[Card]) -> Option<FullHouseStr> {
         /* In a sorted boat, the first two cards have the same rank, and
          * the last two cards have the same rank. The middle card shares
          * a rank with one of the ends.
@@ -308,10 +305,10 @@ mod hand_builder {
         } else {
             (low_pair_rank, high_pair_rank)
         };
-        Some(box FullHouseStr{three_of: three_of, two_of: two_of})
+        Some(FullHouseStr{three_of: three_of, two_of: two_of})
     }
 
-    pub fn get_straight(cards: &[Card]) -> Option<Box<StraightStr>> {
+    pub fn get_straight(cards: &[Card]) -> Option<StraightStr> {
         let mut wheel = false;
         for i in 1..5 {
             let this_card = cards[i];
@@ -329,13 +326,13 @@ mod hand_builder {
         }
         // Straight detected! Now make sure to get the wheel right.
         if wheel {
-            Some(box StraightStr{hi_rank: Rank::Five})
+            Some(StraightStr{hi_rank: Rank::Five})
         } else {
-            Some(box StraightStr{hi_rank: cards[0].rank})
+            Some(StraightStr{hi_rank: cards[0].rank})
         }
     }
 
-    pub fn get_trips(cards: &[Card]) -> Option<Box<TripsStr>> {
+    pub fn get_trips(cards: &[Card]) -> Option<TripsStr> {
         let (trip_rank, high_kicker, low_kicker) =
         if cards[0].rank == cards[2].rank {
             (cards[0].rank, cards[3].rank, cards[4].rank)
@@ -347,10 +344,10 @@ mod hand_builder {
             return None
         };
 
-        Some(box TripsStr{rank: trip_rank, kickers: [high_kicker, low_kicker]})
+        Some(TripsStr{rank: trip_rank, kickers: [high_kicker, low_kicker]})
     }
 
-    pub fn get_two_pair(cards: &[Card]) -> Option<Box<TwoPairStr>> {
+    pub fn get_two_pair(cards: &[Card]) -> Option<TwoPairStr> {
         let mut high_pair_rank = None;
         let mut low_pair_rank = None;
         let mut i = 1;
@@ -388,10 +385,10 @@ mod hand_builder {
             }
         }
 
-        Some(box TwoPairStr{hi_rank: hi_rank, lo_rank: lo_rank, kicker: kicker})
+        Some(TwoPairStr{hi_rank: hi_rank, lo_rank: lo_rank, kicker: kicker})
     }
 
-    pub fn get_pair(cards: &[Card]) -> Option<Box<PairStr>> {
+    pub fn get_pair(cards: &[Card]) -> Option<PairStr> {
         let mut pair_start = None;
         for i in 0..4 {
             let this_rank = cards[i].rank;
@@ -418,19 +415,19 @@ mod hand_builder {
         }
         assert!(kicker_index == 3);
 
-        return Some(box PairStr{rank: pair_rank, kickers: kickers})
+        return Some(PairStr{rank: pair_rank, kickers: kickers})
     }
 
 /* Not optional because this assumes nothing better than high card
    is the case, meaning a high card hand can definitely be formed.
  */
-    pub fn get_hi_card(cards: &[Card]) -> Box<HiCardStr> {
+    pub fn get_hi_card(cards: &[Card]) -> HiCardStr {
         // Note the cards are assumed to be sorted by rank already.
-        box HiCardStr{ranks: [cards[0].rank,
-                              cards[1].rank,
-                              cards[2].rank,
-                              cards[3].rank,
-                              cards[4].rank]}
+        HiCardStr{ranks: [cards[0].rank,
+                          cards[1].rank,
+                          cards[2].rank,
+                          cards[3].rank,
+                          cards[4].rank]}
     }
 
     fn get_flush_suit(cards: &[Card]) -> Option<Suit> {
