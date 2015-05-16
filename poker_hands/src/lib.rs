@@ -87,25 +87,18 @@ impl<'a> AllFiveCardSubsets<'a> {
 
     // Assumes the indices have a next state. In particular, they are NOT all false.
     fn increment_current_indices(&mut self) {
-        let total_indices = self.current_indices.len();
-        let mut first_false_index = total_indices;
-        for index in 0..total_indices {
-            if !self.current_indices[index] {
-                first_false_index = index;
-                break;
-            }
-        }
-        assert!(first_false_index < total_indices);
+        /*
+        The overall algorithm here: Find the first false after a run of trues.
+        (There may be a run of falses before the run of trues; this is irrelevant.)
+        Set that false to true, and move the rest of the trues to the beginning of
+        the list. Set any index that remains to false.
 
-        // Common case - move the first false back by one.
-        if first_false_index > 0 {
-            self.current_indices[first_false_index] = true;
-            self.current_indices[first_false_index - 1] = false;
-            return;
-        }
-
-        // Rare case - first index is false. Find the first run of trues, and move lots of flags around.
-        //TODO actually a slight generalization of this should handle all cases
+        This basically treats the flags as bits of a binary number, least signficant
+        first, and finds the numerically next number which has the right amount of
+        bits set. The initial state is that the first k bits are set, which is also
+        the least-valued number which has that many bits. Therefore, repeated calls
+        to this will produce all such numbers.
+        */
         let total_indices = self.current_indices.len();
         let mut num_consecutive_trues = 0;
         let mut end_of_trues_index = total_indices + 1; // exclusive
@@ -119,6 +112,7 @@ impl<'a> AllFiveCardSubsets<'a> {
                 end_of_trues_index = index;
                 break;
             }
+            // Otherwise, this is part of a run of falses at the beginning; nothing to do.
         }
         assert!(num_consecutive_trues > 0);
 
@@ -132,17 +126,14 @@ impl<'a> AllFiveCardSubsets<'a> {
         self.current_indices[end_of_trues_index] = true;
         // Move the remaining trues to the front of the list.
         for index in 0..end_of_trues_index {
-            if index < num_consecutive_trues - 1 {
-                self.current_indices[index] = true;
-            } else {
-                self.current_indices[index] = false;
-            }
+            let early_enough = index < num_consecutive_trues - 1;
+            self.current_indices[index] = early_enough;
         }
     }
 
     fn no_more_cards(&self) -> bool {
-        // No flagged on = no more hands to return.
-        for index_flag in self.current_indices.iter() {
+        // No index flagged on = no more hands to return.
+        for index_flag in &self.current_indices {
             if *index_flag {
                 return false;
             }
