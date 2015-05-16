@@ -2,6 +2,7 @@ extern crate cards;
 
 mod hand_order_tests;
 mod hand_making_tests;
+mod best_hand_tests;
 
 use cards::{Rank, Suit, Card};
 use std::fmt::{Debug, Formatter};
@@ -55,7 +56,7 @@ impl<'a> AllFiveCardSubsets<'a> {
     pub fn create(cards: & 'a [Card]) -> AllFiveCardSubsets<'a> {
         assert!(cards.len() >= 5);
         for i in 1..cards.len() {
-            assert!(cards[i] <= cards[i - 1]);
+            assert!(cards[i].rank <= cards[i - 1].rank);
         }
 
         let current_indices = AllFiveCardSubsets::init_indices(cards.len());
@@ -81,7 +82,7 @@ impl<'a> AllFiveCardSubsets<'a> {
                 cards_upto += 1;
             }
         }
-        assert!(cards_upto == 5); // Make sure all dummies were overwritten.
+        assert!(cards_upto == 5, "{:?} indices set", cards_upto); // Make sure all dummies were overwritten.
         cards
     }
 
@@ -102,7 +103,7 @@ impl<'a> AllFiveCardSubsets<'a> {
         let total_indices = self.current_indices.len();
         let mut num_consecutive_trues = 0;
         let mut end_of_trues_index = total_indices + 1; // exclusive
-        for index in 1..total_indices {
+        for index in 0..total_indices {
             if self.current_indices[index] {
                 num_consecutive_trues += 1;
                 continue;
