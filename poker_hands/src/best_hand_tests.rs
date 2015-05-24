@@ -65,3 +65,84 @@ fn find_boats() {
     cards = [card(Ace, Hearts), card(Queen, Spades), card(Four, Hearts), card(Four, Clubs), card(Four, Spades), card(Two, Diamonds), card(Two, Clubs)];
     assert_best_hand(&cards, FullHouse(FullHouseStr{three_of: Four, two_of: Two}));
 }
+
+#[test]
+fn find_flushes() {
+    let mut cards = [card(King, Clubs), card(Queen, Spades), card(Jack, Diamonds), card(Ten, Spades), card(Nine, Spades), card(Eight, Spades), card(Four, Spades)];
+    assert_best_hand(&cards, Flush(FlushStr{ranks: [Queen, Ten, Nine, Eight, Four]}));
+
+    cards = [card(Ace, Spades), card(Ace, Clubs), card(Ace, Hearts), card(Ten, Hearts), card(Seven, Hearts), card(Three, Hearts), card(Two, Hearts)];
+    assert_best_hand(&cards, Flush(FlushStr{ranks: [Ace, Ten, Seven, Three, Two]}));
+
+    cards = [card(King, Clubs), card(King, Hearts), card(Ten, Hearts), card(Seven, Hearts), card(Seven, Diamonds), card(Three, Hearts), card(Two, Hearts)];
+    assert_best_hand(&cards, Flush(FlushStr{ranks: [King, Ten, Seven, Three, Two]}));
+
+    cards = [card(King, Hearts), card(Ten, Hearts), card(Nine, Spades), card(Nine, Diamonds), card(Seven, Hearts), card(Three, Hearts), card(Two, Hearts)];
+    assert_best_hand(&cards, Flush(FlushStr{ranks: [King, Ten, Seven, Three, Two]}));
+
+    cards = [card(King, Hearts), card(Ten, Hearts), card(Nine, Hearts), card(Seven, Hearts), card(Six, Hearts), card(Three, Hearts), card(Two, Hearts)];
+    assert_best_hand(&cards, Flush(FlushStr{ranks: [King, Ten, Nine, Seven, Six]}));
+
+    cards = [card(King, Hearts), card(Ten, Diamonds), card(Nine, Hearts), card(Seven, Hearts), card(Six, Hearts), card(Three, Hearts), card(Two, Clubs)];
+    assert_best_hand(&cards, Flush(FlushStr{ranks: [King, Nine, Seven, Six, Three]}));
+}
+
+#[test]
+fn find_straights() {
+    let mut cards = [card(Ace, Hearts), card(Queen, Spades), card(Jack, Diamonds), card(Ten, Spades), card(Nine, Hearts), card(Eight, Spades), card(Four, Spades)];
+    assert_best_hand(&cards, Straight(StraightStr{hi_rank: Queen}));
+
+    cards = [card(King, Hearts), card(Queen, Spades), card(Jack, Diamonds), card(Ten, Spades), card(Nine, Hearts), card(Eight, Spades), card(Seven, Clubs)];
+    assert_best_hand(&cards, Straight(StraightStr{hi_rank: King}));
+
+    cards = [card(Ace, Hearts), card(Seven, Clubs), card(Six, Spades), card(Five, Diamonds), card(Four, Spades), card(Three, Hearts), card(Two, Spades)];
+    assert_best_hand(&cards, Straight(StraightStr{hi_rank: Seven}));
+
+    cards = [card(Ace, Hearts), card(King, Clubs), card(Queen, Spades), card(Five, Diamonds), card(Four, Spades), card(Three, Hearts), card(Two, Spades)];
+    assert_best_hand(&cards, Straight(StraightStr{hi_rank: Five}));
+
+    cards = [card(King, Hearts), card(King, Spades), card(Jack, Diamonds), card(Ten, Spades), card(Nine, Hearts), card(Eight, Spades), card(Seven, Clubs)];
+    assert_best_hand(&cards, Straight(StraightStr{hi_rank: Jack}));
+
+    cards = [card(Jack, Hearts), card(Jack, Spades), card(Jack, Diamonds), card(Ten, Spades), card(Nine, Hearts), card(Eight, Spades), card(Seven, Clubs)];
+    assert_best_hand(&cards, Straight(StraightStr{hi_rank: Jack}));
+
+    cards = [card(Jack, Hearts), card(Jack, Diamonds), card(Ten, Spades), card(Nine, Diamonds), card(Nine, Hearts), card(Eight, Spades), card(Seven, Clubs)];
+    assert_best_hand(&cards, Straight(StraightStr{hi_rank: Jack}));
+}
+
+#[test]
+fn find_trips() {
+    let mut cards = [card(Jack, Hearts), card(Jack, Diamonds), card(Jack, Spades), card(Nine, Diamonds), card(Six, Hearts), card(Five, Spades), card(Three, Clubs)];
+    assert_best_hand(&cards, Trips(TripsStr{rank: Jack, kickers: [Nine, Six]}));
+
+    cards = [card(Ace, Hearts), card(King, Diamonds), card(Jack, Spades), card(Ten, Diamonds), card(Six, Hearts), card(Six, Spades), card(Six, Clubs)];
+    assert_best_hand(&cards, Trips(TripsStr{rank: Six, kickers: [Ace, King]}));
+}
+
+#[test]
+fn find_two_pairs() {
+    let mut cards = [card(Jack, Hearts), card(Jack, Diamonds), card(Eight, Spades), card(Seven, Diamonds), card(Six, Hearts), card(Six, Spades), card(Three, Clubs)];
+    assert_best_hand(&cards, TwoPair(TwoPairStr{hi_rank: Jack, lo_rank: Six, kicker: Eight}));
+
+    cards = [card(Ace, Hearts), card(King, Hearts), card(Eight, Spades), card(Eight, Diamonds), card(Six, Hearts), card(Six, Spades), card(Three, Clubs)];
+    assert_best_hand(&cards, TwoPair(TwoPairStr{hi_rank: Eight, lo_rank: Six, kicker: Ace}));
+}
+
+#[test]
+fn find_pairs() {
+    let mut cards = [card(Ace, Hearts), card(King, Hearts), card(Queen, Spades), card(Ten, Diamonds), card(Six, Hearts), card(Six, Spades), card(Three, Clubs)];
+    assert_best_hand(&cards, Pair(PairStr{rank: Six, kickers: [Ace, King, Queen]}));
+
+    cards = [card(Ace, Hearts), card(Ace, Diamonds), card(Queen, Spades), card(Ten, Diamonds), card(Six, Hearts), card(Three, Clubs), card(Two, Clubs)];
+    assert_best_hand(&cards, Pair(PairStr{rank: Ace, kickers: [Queen, Ten, Six]}));
+}
+
+#[test]
+fn find_air() {
+    let mut cards = [card(Ace, Hearts), card(King, Hearts), card(Queen, Spades), card(Ten, Diamonds), card(Six, Hearts), card(Four, Spades), card(Three, Clubs)];
+    assert_best_hand(&cards, HiCard(HiCardStr{ranks: [Ace, King, Queen, Ten, Six]}));
+
+    cards = [card(Jack, Spades), card(Nine, Diamonds), card(Seven, Spades), card(Six, Hearts), card(Four, Spades), card(Three, Clubs), card(Two, Clubs)];
+    assert_best_hand(&cards, HiCard(HiCardStr{ranks: [Jack, Nine, Seven, Six, Four]}));
+}
