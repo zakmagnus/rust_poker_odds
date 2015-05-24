@@ -10,16 +10,26 @@ use std::cmp::{Eq, Ordering};
 
 // Rank arrays are used for kickers. They should be sorted descending.
 
+#[derive(Copy, Clone)]
 pub struct HiCardStr        {pub ranks: [Rank; 5]}
+#[derive(Copy, Clone)]
 pub struct PairStr          {pub rank: Rank, pub kickers: [Rank; 3]}
+#[derive(Copy, Clone)]
 pub struct TwoPairStr       {pub hi_rank: Rank, pub lo_rank: Rank, pub kicker: Rank}
+#[derive(Copy, Clone)]
 pub struct TripsStr         {pub rank: Rank, pub kickers: [Rank; 2]}
+#[derive(Copy, Clone)]
 pub struct StraightStr      {pub hi_rank: Rank}
+#[derive(Copy, Clone)]
 pub struct FlushStr         {pub ranks: [Rank; 5]}
+#[derive(Copy, Clone)]
 pub struct FullHouseStr     {pub three_of: Rank, pub two_of: Rank}
+#[derive(Copy, Clone)]
 pub struct QuadsStr         {pub rank: Rank, pub kicker: Rank}
+#[derive(Copy, Clone)]
 pub struct StraightFlushStr {pub hi_rank: Rank}
 
+#[derive(Copy, Clone)]
 pub enum Hand {
     HiCard(HiCardStr),
     Pair(PairStr),
@@ -551,7 +561,7 @@ fn cmp_same_type_hand(this: & Hand, other: & Hand) -> Ordering {
     this_comparable_buffer.cmp(&other_comparable_buffer)
 }
 
-fn copy_all<T: Copy> (dest: & mut Vec<T>, src: &[T]) {
+pub fn copy_all<T: Copy> (dest: & mut Vec<T>, src: &[T]) {
     for element in src.iter() {
         dest.push(*element);
     }
