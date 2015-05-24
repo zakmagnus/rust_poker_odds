@@ -24,8 +24,22 @@ fn main() {
             let hand = Hand::best_hand_of(&cards);
             hands.push(hand);
         }
-    //TODO    figure out winners or chops
-    //TODO    note down what happened
+
+        let mut winners = Vec::new();
+        winners.push(0);
+        let mut best_hand = hands.get(0);
+        for index in 1..hands.len() {
+            let hand = hands.get(index);
+            if hand == best_hand {
+                winners.push(index);
+            } else if hand > best_hand {
+                winners.clear();
+                winners.push(index);
+                best_hand = hand;
+            }
+        }
+        //TODO    figure out winners or chops
+        //TODO    note down what happened
     }
     //TODO print stats of what happened
 }
