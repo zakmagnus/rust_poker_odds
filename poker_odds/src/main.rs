@@ -1,6 +1,8 @@
 extern crate cards;
 extern crate poker_hands;
 
+use std::collections::HashMap;
+
 use cards::{Card, Rank, Suit};
 use poker_hands::Hand;
 
@@ -11,7 +13,8 @@ fn main() {
     let num_sims = 10 * 1000;
     //TODO get some hole cards
     let all_hole_cards: Vec<[Card; 2]> = Vec::new();
-    //TODO map (winner array) -> HandStats
+
+    let mut outcomes = HashMap::new();
     for _ in 0..num_sims {
         let board = pick_random_board(&all_hole_cards);
         let mut hands = Vec::with_capacity(all_hole_cards.len());
@@ -27,20 +30,29 @@ fn main() {
 
         let mut winners = Vec::new();
         winners.push(0);
-        let mut best_hand = hands.get(0);
+        let mut best_hand = hands[0];
         for index in 1..hands.len() {
-            let hand = hands.get(index);
+            let hand = hands[index];
             if hand == best_hand {
-                winners.push(index);
+                winners.push(index as i32);
             } else if hand > best_hand {
                 winners.clear();
-                winners.push(index);
+                winners.push(index as i32);
                 best_hand = hand;
             }
         }
-        //TODO key into winning stats and add this hand to its events
+        insert_outcome(&mut outcomes, &winners, &best_hand);
     }
     //TODO print stats of what happened
+}
+
+fn insert_outcome(outcomes: &mut HashMap<Vec<i32>, HandStats>, winners: &Vec<i32>, hand: &Hand) {
+    // Set up default stats if there are none yet.
+    if let None = outcomes.get(winners) {
+        outcomes.insert(winners.clone(), HandStats::create());
+    }
+
+    outcomes.get_mut(winners).unwrap().add_event(hand);
 }
 
 fn pick_random_board(all_hole_cards: &[[Card; 2]]) -> [Card; 5] {
@@ -57,8 +69,8 @@ impl HandStats {
         HandStats{events: [0; 9]}
     }
 
-    fn add_event(&mut self, hand: Hand) {
-        let event_index: u8 = hand.into();
+    fn add_event(&mut self, hand: &Hand) {
+        let event_index: u8 = (*hand).into();
         self.events[event_index as usize] += 1;
     }
 
