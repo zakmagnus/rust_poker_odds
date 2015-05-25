@@ -444,25 +444,27 @@ mod hand_builder {
     }
 }
 
-fn hand_to_index(hand: & Hand) -> u8 {
-    match *hand {
-        HiCard(..) => 0,
-        Pair(..) => 1,
-        TwoPair(..) => 2,
-        Trips(..) => 3,
-        Straight(..) => 4,
-        Flush(..) => 5,
-        FullHouse(..) => 6,
-        Quads(..) => 7,
-        StraightFlush(..) => 8,
+impl Into<u8> for Hand {
+    fn into(self) -> u8 {
+        match self {
+            HiCard(..) => 0,
+            Pair(..) => 1,
+            TwoPair(..) => 2,
+            Trips(..) => 3,
+            Straight(..) => 4,
+            Flush(..) => 5,
+            FullHouse(..) => 6,
+            Quads(..) => 7,
+            StraightFlush(..) => 8,
+        }
     }
 }
 
 impl Ord for Hand {
     fn cmp(&self, other: &Self) -> Ordering {
         // Pick the best hand type, if they're different.
-        let this_index = hand_to_index(self);
-        let other_index = hand_to_index(other);
+        let this_index: u8 = (*self).into();
+        let other_index: u8 = (*self).into();
         let initial_comparison = this_index.cmp(&other_index);
         if initial_comparison != Ordering::Equal {
             return initial_comparison;

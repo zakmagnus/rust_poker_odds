@@ -11,6 +11,7 @@ fn main() {
     let num_sims = 10 * 1000;
     //TODO get some hole cards
     let all_hole_cards: Vec<[Card; 2]> = Vec::new();
+    //TODO map (winner array) -> HandStats
     for _ in 0..num_sims {
         let board = pick_random_board(&all_hole_cards);
         let mut hands = Vec::with_capacity(all_hole_cards.len());
@@ -37,8 +38,7 @@ fn main() {
                 best_hand = hand;
             }
         }
-        //TODO    figure out winners or chops
-        //TODO    note down what happened
+        //TODO key into winning stats and add this hand to its events
     }
     //TODO print stats of what happened
 }
@@ -46,4 +46,23 @@ fn main() {
 fn pick_random_board(all_hole_cards: &[[Card; 2]]) -> [Card; 5] {
     //TODO
     [Card{rank: Rank::Ace, suit: Suit::Spades}; 5]
+}
+
+struct HandStats {
+    events: [i32; 9], // Number of times each hand happened
+}
+
+impl HandStats {
+    fn create() -> HandStats {
+        HandStats{events: [0; 9]}
+    }
+
+    fn add_event(&mut self, hand: Hand) {
+        let event_index: u8 = hand.into();
+        self.events[event_index as usize] += 1;
+    }
+
+    fn total_events(self) -> i32 {
+        self.events.iter().fold(0, |aggregate, event| aggregate + event)
+    }
 }
