@@ -2,7 +2,6 @@ extern crate cards;
 extern crate poker_hands;
 
 use cards::{Card, Rank, Suit};
-use poker_hands::copy_all;
 use poker_hands::Hand;
 
 fn main() {
@@ -17,8 +16,8 @@ fn main() {
         let mut hands = Vec::with_capacity(all_hole_cards.len());
         for hole_cards in &all_hole_cards {
             let mut cards: Vec<Card> = Vec::with_capacity(hole_cards.len() + board.len());
-            copy_all(&mut cards, &board);
-            copy_all(&mut cards, hole_cards);
+            cards.extend(board.iter().cloned());
+            cards.extend(hole_cards.iter().cloned());
             // Sort descending - best_hand_of() requires this.
             cards.sort_by(|first, second| second.cmp(first));
             let hand = Hand::best_hand_of(&cards);

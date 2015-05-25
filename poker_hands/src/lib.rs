@@ -493,8 +493,8 @@ fn cmp_same_type_hand(this: & Hand, other: & Hand) -> Ordering {
 
     match (this, other) {
         (&HiCard(HiCardStr{ranks: ref these_ranks}), &HiCard(HiCardStr{ranks: ref other_ranks})) => {
-            copy_all(&mut this_comparable_buffer, these_ranks);
-            copy_all(&mut other_comparable_buffer, other_ranks);
+            this_comparable_buffer.extend(these_ranks.iter().cloned());
+            other_comparable_buffer.extend(other_ranks.iter().cloned());
         },
         (&Pair(PairStr{rank: this_rank, kickers: ref these_kickers}), &Pair(PairStr{rank: other_rank, kickers: ref other_kickers})) => {
             assert_eq!(3, these_kickers.len());
@@ -503,8 +503,8 @@ fn cmp_same_type_hand(this: & Hand, other: & Hand) -> Ordering {
             this_comparable_buffer.push(this_rank);
             other_comparable_buffer.push(other_rank);
 
-            copy_all(&mut this_comparable_buffer, these_kickers);
-            copy_all(&mut other_comparable_buffer, other_kickers);
+            this_comparable_buffer.extend(these_kickers.iter().cloned());
+            other_comparable_buffer.extend(other_kickers.iter().cloned());
         },
         (&TwoPair(TwoPairStr{hi_rank: this_hi_rank, lo_rank: this_lo_rank, kicker: this_kicker}), &TwoPair(TwoPairStr{hi_rank: other_hi_rank, lo_rank: other_lo_rank, kicker: other_kicker})) => {
             this_comparable_buffer.push(this_hi_rank);
@@ -523,16 +523,16 @@ fn cmp_same_type_hand(this: & Hand, other: & Hand) -> Ordering {
             this_comparable_buffer.push(this_rank);
             other_comparable_buffer.push(other_rank);
 
-            copy_all(&mut this_comparable_buffer, these_kickers);
-            copy_all(&mut other_comparable_buffer, other_kickers);
+            this_comparable_buffer.extend(these_kickers.iter().cloned());
+            other_comparable_buffer.extend(other_kickers.iter().cloned());
         },
         (&Straight(StraightStr{hi_rank: this_rank}), &Straight(StraightStr{hi_rank: other_rank})) => {
             this_comparable_buffer.push(this_rank);
             other_comparable_buffer.push(other_rank);
         },
         (&Flush(FlushStr{ranks: ref these_ranks}), &Flush(FlushStr{ranks: ref other_ranks})) => {
-            copy_all(&mut this_comparable_buffer, these_ranks);
-            copy_all(&mut other_comparable_buffer, other_ranks);
+            this_comparable_buffer.extend(these_ranks.iter().cloned());
+            other_comparable_buffer.extend(other_ranks.iter().cloned());
         },
         (&FullHouse(FullHouseStr{three_of: this_three_of, two_of: this_two_of}), &FullHouse(FullHouseStr{three_of: other_three_of, two_of: other_two_of})) => {
             this_comparable_buffer.push(this_three_of);
@@ -559,12 +559,6 @@ fn cmp_same_type_hand(this: & Hand, other: & Hand) -> Ordering {
     };
     assert_eq!(this_comparable_buffer.len(), other_comparable_buffer.len());
     this_comparable_buffer.cmp(&other_comparable_buffer)
-}
-
-pub fn copy_all<T: Copy> (dest: & mut Vec<T>, src: &[T]) {
-    for element in src.iter() {
-        dest.push(*element);
-    }
 }
 
 impl Debug for Hand {
