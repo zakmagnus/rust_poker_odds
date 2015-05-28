@@ -43,7 +43,18 @@ fn main() {
         }
         insert_outcome(&mut outcomes, &winners, &best_hand);
     }
-    //TODO print stats of what happened
+
+    for (outcome, stats) in outcomes {
+        let total_events = stats.total_events();
+        let outcome_percent = total_events as f64 / num_sims as f64;
+        let outcome_name = name_outcome(&outcome);
+        println!("{} ({} times, {}%)", outcome_name, total_events, outcome_percent);
+        /*
+        print the breakdown of which hands caused it (by %)
+        TODO sort the hands by %
+        */
+    }
+    //TODO sort the outcomes by %
 }
 
 fn insert_outcome(outcomes: &mut HashMap<Vec<i32>, HandStats>, winners: &Vec<i32>, hand: &Hand) {
@@ -78,4 +89,22 @@ impl HandStats {
     fn total_events(self) -> i32 {
         self.events.iter().fold(0, |aggregate, event| aggregate + event)
     }
+}
+
+fn name_outcome(outcome: &Vec<i32>) -> String {
+    if outcome.len() == 1 {
+        return format!("Hand {} wins", outcome[0]);
+    }
+    if outcome.len() > 0 {
+        return format!("Chop between hands {}", vec_to_string(outcome));
+    }
+    panic!("Empty outcome")
+}
+
+fn vec_to_string(vec: &Vec<i32>) -> String {
+    let mut string = format!("{}", vec[0]);
+    for index in 1..vec.len() {
+        string = string + &format!(", {}", vec[index]);
+    }
+    string
 }
