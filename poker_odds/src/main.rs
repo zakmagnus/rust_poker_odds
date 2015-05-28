@@ -60,13 +60,14 @@ fn pick_random_board(all_hole_cards: &[[Card; 2]]) -> [Card; 5] {
     [Card{rank: Rank::Ace, suit: Suit::Spades}; 5]
 }
 
+const NUM_HANDS: usize = 9;
 struct HandStats {
-    events: [i32; 9], // Number of times each hand happened
+    events: [i32; NUM_HANDS], // Number of times each hand happened
 }
 
 impl HandStats {
     fn create() -> HandStats {
-        HandStats{events: [0; 9]}
+        HandStats{events: [0; NUM_HANDS]}
     }
 
     fn add_event(&mut self, hand: &Hand) {
