@@ -9,7 +9,6 @@ use cards::{Card, Rank, Suit};
 use poker_hands::Hand;
 
 fn main() {
-    println!("Hello, world!");
     //TODO read cli args
 
     let num_sims = 10 * 1000;
