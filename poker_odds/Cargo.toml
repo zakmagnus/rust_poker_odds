@@ -8,3 +8,6 @@ path = "../cards"
 
 [dependencies.poker_hands]
 path = "../poker_hands"
+
+[dependencies]
+rand = "0.3.8"

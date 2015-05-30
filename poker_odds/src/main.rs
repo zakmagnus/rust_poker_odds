@@ -1,7 +1,9 @@
+extern crate rand;
 extern crate cards;
 extern crate poker_hands;
 
 use std::collections::HashMap;
+use rand::{thread_rng, Rng};
 
 use cards::{Card, Rank, Suit};
 use poker_hands::Hand;
@@ -66,9 +68,34 @@ fn insert_outcome(outcomes: &mut HashMap<Vec<i32>, HandStats>, winners: &Vec<i32
     outcomes.get_mut(winners).unwrap().add_event(hand);
 }
 
-fn pick_random_board(all_hole_cards: &[[Card; 2]]) -> [Card; 5] {
-    //TODO
-    [Card{rank: Rank::Ace, suit: Suit::Spades}; 5]
+const BOARD_SIZE: usize = 5;
+fn pick_random_board(all_hole_cards: &[[Card; 2]]) -> [Card; BOARD_SIZE] {
+    let mut board = [Card{rank: Rank::Ace, suit: Suit::Spades}; BOARD_SIZE]; // Dummies
+
+    let mut used_indexes: Vec<u8> = Vec::with_capacity(all_hole_cards.len() + BOARD_SIZE);
+    used_indexes.extend(
+        all_hole_cards.iter().
+        flat_map(|cards| cards). // Flatten all hands into one iterator
+        map(|card| (*card).into() ));
+
+    let mut board_index = 0;
+    let mut rng = rand::thread_rng();
+    while board_index < BOARD_SIZE {
+        /*
+        Generate random cards and skip them if they're used already.
+        The assumption is that few cards will be used compared to the
+        possible 52, so it should skip rarely and be efficient.
+        */
+        let card = rng.gen::<Card>();
+        let card_index = card.into();
+        if used_indexes.contains(&card_index) {
+            continue;
+        }
+        used_indexes.push(card_index);
+        board[board_index] = card;
+        board_index += 1;
+    }
+    board
 }
 
 const NUM_HANDS: usize = 9;
