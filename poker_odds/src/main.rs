@@ -8,7 +8,9 @@ use std::collections::HashMap;
 use getopts::{Options, Matches, HasArg, Occur};
 use rand::{thread_rng, Rng};
 
-use cards::{Card, Rank, Suit};
+use cards::{Card, Rank, Suit, card};
+use cards::Rank::*;
+use cards::Suit::*;
 use poker_hands::{Hand, NUM_HANDS};
 
 fn main() {
@@ -20,7 +22,7 @@ fn main() {
     };
 
     let num_sims = 10 * 1000; // TODO optionally get from args
-    let mut all_hole_cards = get_hole_cards(&arg_matches);
+    let all_hole_cards = get_hole_cards(&arg_matches);
 
     let mut outcomes = HashMap::new();
     // TODO try doing this in parallel!
@@ -93,8 +95,56 @@ fn get_hole_cards(matches: &Matches) -> Vec<[Card; 2]> {
 }
 
 fn parse_cards_string(cards_string: &str) -> Vec<Card> {
-    //TODO
-    Vec::new()
+    let chars: Vec<char> = cards_string.chars().collect();
+    assert!(chars.len() % 2 == 0, "Odd numbers of characters, cannot be cards: {}", cards_string);
+
+    let num_cards = chars.len() / 2;
+    let mut cards = Vec::with_capacity(num_cards);
+    for card_index in 0..num_cards {
+        let rank_index = card_index * 2;
+        let suit_index = rank_index + 1;
+        let rank_char = chars[rank_index];
+        let suit_char = chars[suit_index];
+        let rank = parse_rank(rank_char).expect(
+                &format!("Couldn't parse {} (position {} in {}) as a rank",
+                rank_char, rank_index, cards_string));
+        let suit = parse_suit(suit_char).expect(
+                &format!("Couldn't parse {} (position {} in {}) as a suit",
+                suit_char, suit_index, cards_string));
+        cards.push(card(rank, suit));
+    }
+    cards
+}
+
+fn parse_rank(rank_char: char) -> Option<Rank> {
+    let rank = match rank_char {
+        'A' | 'a' => Ace,
+        'K' | 'k' => King,
+        'Q' | 'q' => Queen,
+        'J' | 'j' => Jack,
+        'T' | 't' => Ten,
+        '9' => Nine,
+        '8' => Eight,
+        '7' => Seven,
+        '6' => Six,
+        '5' => Five,
+        '4' => Four,
+        '3' => Three,
+        '2' => Two,
+        _ => return None
+    };
+    Some(rank)
+}
+
+fn parse_suit(suit_char: char) -> Option<Suit> {
+    let suit = match suit_char {
+        'S' | 's' => Spades,
+        'H' | 'h' => Hearts,
+        'C' | 'c' => Clubs,
+        'D' | 'd' => Diamonds,
+        _ => return None
+    };
+    Some(suit)
 }
 
 fn insert_outcome(outcomes: &mut HashMap<Vec<i32>, HandStats>, winners: &Vec<i32>, hand: &Hand) {
