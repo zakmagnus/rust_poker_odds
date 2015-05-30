@@ -11,3 +11,4 @@ path = "../poker_hands"
 
 [dependencies]
 rand = "0.3.8"
+getopts = "0.2"

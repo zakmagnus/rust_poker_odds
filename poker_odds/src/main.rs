@@ -1,22 +1,31 @@
 extern crate rand;
+extern crate getopts;
 extern crate cards;
 extern crate poker_hands;
 
+use std::env;
 use std::collections::HashMap;
+use getopts::{Options, Matches, HasArg, Occur};
 use rand::{thread_rng, Rng};
 
 use cards::{Card, Rank, Suit};
 use poker_hands::{Hand, NUM_HANDS};
 
 fn main() {
-    //TODO read cli args
+    let args: Vec<String> = env::args().collect();
+    let opts = create_opts();
+    let arg_matches = match opts.parse(&args[1..]) {
+        Ok(matches) => matches,
+        Err(error) => panic!("Could not parse {:?}; error: {:?}", args, error)
+    };
 
-    let num_sims = 10 * 1000;
-    //TODO get some hole cards
-    let all_hole_cards: Vec<[Card; 2]> = Vec::new();
+    let num_sims = 10 * 1000; // TODO optionally get from args
+    let mut all_hole_cards = get_hole_cards(&arg_matches);
 
     let mut outcomes = HashMap::new();
+    // TODO try doing this in parallel!
     for _ in 0..num_sims {
+        // TODO optionally get a partial board from args
         let board = pick_random_board(&all_hole_cards);
         let mut hands = Vec::with_capacity(all_hole_cards.len());
         for hole_cards in &all_hole_cards {
@@ -61,6 +70,31 @@ fn main() {
         }
     }
     //TODO sort the outcomes by %
+}
+
+const HOLE_CARDS_ARG: &'static str = "h";
+fn create_opts() -> Options {
+    // Unfortunately, there doesn't seem to be a way to require that an option appears at least once.
+    let mut opts = Options::new();
+    opts.opt(HOLE_CARDS_ARG, "hole cards", "A single player's hole cards", "XxYy", HasArg::Yes, Occur::Multi);
+    opts
+}
+
+fn get_hole_cards(matches: &Matches) -> Vec<[Card; 2]> {
+    assert!(matches.opt_count(HOLE_CARDS_ARG) >= 1, "No hole cards specified");
+    let hole_strings = matches.opt_strs(HOLE_CARDS_ARG);
+    let mut all_hole_cards = Vec::with_capacity(hole_strings.len());
+    for hole_string in &hole_strings {
+        let hole_cards = parse_cards_string(hole_string);
+        assert!(hole_cards.len() == 2, "{} specifies {} cards, not 2", hole_string, hole_cards.len());
+        all_hole_cards.push([hole_cards[0], hole_cards[1]]);
+    }
+    all_hole_cards
+}
+
+fn parse_cards_string(cards_string: &str) -> Vec<Card> {
+    //TODO
+    Vec::new()
 }
 
 fn insert_outcome(outcomes: &mut HashMap<Vec<i32>, HandStats>, winners: &Vec<i32>, hand: &Hand) {
