@@ -47,7 +47,7 @@ fn main() {
 
     for (outcome, stats) in outcomes {
         let total_events = stats.total_events();
-        let outcome_percent = total_events as f64 / num_sims as f64;
+        let outcome_percent = (total_events as f64 / num_sims as f64) * 100f64;
         let outcome_name = name_outcome(&outcome);
         println!("{} ({} times, {}%)", outcome_name, total_events, outcome_percent);
         /*
