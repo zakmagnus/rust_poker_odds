@@ -3,3 +3,7 @@
 name = "cards"
 version = "0.9.0"
 authors = [" <zakmagnus@gmail.com>"]
+
+[dependencies]
+rand = "0.3.8"
+

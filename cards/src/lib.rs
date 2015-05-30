@@ -1,6 +1,9 @@
+extern crate rand;
+
 use std::option::Option;
 use std::cmp::{Ord, PartialOrd, Ordering};
 use std::fmt::{Debug, Formatter};
+use rand::{Rng, Rand};
 
 mod tests;
 
@@ -10,6 +13,19 @@ pub enum Suit {
     Hearts,
     Clubs,
     Diamonds,
+}
+
+use Suit::*;
+impl From<u8> for Suit {
+    fn from(index: u8) -> Self {
+        match index % 4 {
+            0 => Spades,
+            1 => Hearts,
+            2 => Clubs,
+            3 => Diamonds,
+            _ => panic!()
+        }
+    }
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -58,6 +74,27 @@ impl PartialEq for Rank {
     }
 }
 
+impl From<u8> for Rank {
+    fn from(index: u8) -> Self {
+        match index % 13 {
+            0 => Two,
+            1 => Three,
+            2 => Four,
+            3 => Five,
+            4 => Six,
+            5 => Seven,
+            6 => Eight,
+            7 => Nine,
+            8 => Ten,
+            9 => Jack,
+            10 => Queen,
+            11 => King,
+            12 => Ace,
+            _ => panic!()
+        }
+    }
+}
+
 #[derive(Copy, Clone)]
 pub struct Card { pub suit: Suit, pub rank: Rank }
 impl Debug for Card {
@@ -90,4 +127,19 @@ impl PartialEq for Card {
 
 pub fn card(rank: Rank, suit: Suit) -> Card {
     Card{rank: rank, suit: suit}
+}
+
+impl Rand for Card {
+    fn rand<R: Rng>(rng: &mut R) -> Self {
+        let index = rng.gen_range(0, 51);
+        let suit: Suit = Suit::from(index / 4);
+        let rank: Rank = Rank::from(index % 4);
+        card(rank, suit)
+    }
+}
+
+impl Into<u8> for Card {
+    fn into(self) -> u8 {
+        ((self.suit as u8) * 4) + (self.rank as u8)
+    }
 }
