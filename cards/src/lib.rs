@@ -132,14 +132,14 @@ pub fn card(rank: Rank, suit: Suit) -> Card {
 impl Rand for Card {
     fn rand<R: Rng>(rng: &mut R) -> Self {
         let index = rng.gen_range(0, 51);
-        let suit: Suit = Suit::from(index / 4);
-        let rank: Rank = Rank::from(index % 4);
+        let suit: Suit = Suit::from(index % 4);
+        let rank: Rank = Rank::from(index / 4);
         card(rank, suit)
     }
 }
 
 impl Into<u8> for Card {
     fn into(self) -> u8 {
-        ((self.suit as u8) * 4) + (self.rank as u8)
+        ((self.rank as u8) * 4) + (self.suit as u8)
     }
 }
