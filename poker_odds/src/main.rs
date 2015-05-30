@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use rand::{thread_rng, Rng};
 
 use cards::{Card, Rank, Suit};
-use poker_hands::Hand;
+use poker_hands::{Hand, NUM_HANDS};
 
 fn main() {
     //TODO read cli args
@@ -50,10 +50,15 @@ fn main() {
         let outcome_percent = (total_events as f64 / num_sims as f64) * 100f64;
         let outcome_name = name_outcome(&outcome);
         println!("{} ({} times, {}%)", outcome_name, total_events, outcome_percent);
-        /*
-        print the breakdown of which hands caused it (by %)
-        TODO sort the hands by %
-        */
+        //TODO sort the hands by %
+        for hand_index in 0..NUM_HANDS {
+            let hand_events = stats.events[hand_index];
+            if hand_events == 0 {
+                continue;
+            }
+            let hand_percent = (hand_events as f64 / total_events as f64) * 100f64;
+            println!("\t{}: {} times, {}%", Hand::name_hand_index(hand_index), hand_events, hand_percent);
+        }
     }
     //TODO sort the outcomes by %
 }
@@ -97,7 +102,6 @@ fn pick_random_board(all_hole_cards: &[[Card; 2]]) -> [Card; BOARD_SIZE] {
     board
 }
 
-const NUM_HANDS: usize = 9;
 struct HandStats {
     events: [i32; NUM_HANDS], // Number of times each hand happened
 }
@@ -112,7 +116,7 @@ impl HandStats {
         self.events[event_index as usize] += 1;
     }
 
-    fn total_events(self) -> i32 {
+    fn total_events(&self) -> i32 {
         self.events.iter().fold(0, |aggregate, event| aggregate + event)
     }
 }

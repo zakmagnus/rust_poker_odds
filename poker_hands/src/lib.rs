@@ -29,6 +29,7 @@ pub struct QuadsStr         {pub rank: Rank, pub kicker: Rank}
 #[derive(Copy, Clone)]
 pub struct StraightFlushStr {pub hi_rank: Rank}
 
+pub const NUM_HANDS: usize = 9;
 #[derive(Copy, Clone)]
 pub enum Hand {
     HiCard(HiCardStr),
@@ -208,6 +209,21 @@ impl Hand {
         try_getting_hand!(hand_builder::get_two_pair, TwoPair, cards);
         try_getting_hand!(hand_builder::get_pair, Pair, cards);
         HiCard(hand_builder::get_hi_card(cards))
+    }
+
+    pub fn name_hand_index(index: usize) -> String {
+        match index % NUM_HANDS {
+            0 => "High card",
+            1 => "Pair",
+            2 => "Two pair",
+            3 => "Trips",
+            4 => "Straight",
+            5 => "Flush",
+            6 => "Full house",
+            7 => "Quads",
+            8 => "Straight flush",
+            _ => panic!()
+        }.to_string()
     }
 }
 
