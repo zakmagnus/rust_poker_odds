@@ -464,7 +464,7 @@ impl Ord for Hand {
     fn cmp(&self, other: &Self) -> Ordering {
         // Pick the best hand type, if they're different.
         let this_index: u8 = (*self).into();
-        let other_index: u8 = (*self).into();
+        let other_index: u8 = (*other).into();
         let initial_comparison = this_index.cmp(&other_index);
         if initial_comparison != Ordering::Equal {
             return initial_comparison;
