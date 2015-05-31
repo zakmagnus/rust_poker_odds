@@ -131,7 +131,7 @@ pub fn card(rank: Rank, suit: Suit) -> Card {
 
 impl Rand for Card {
     fn rand<R: Rng>(rng: &mut R) -> Self {
-        let index = rng.gen_range(0, 51);
+        let index = rng.gen_range(0, 52);
         let suit: Suit = Suit::from(index % 4);
         let rank: Rank = Rank::from(index / 4);
         card(rank, suit)
