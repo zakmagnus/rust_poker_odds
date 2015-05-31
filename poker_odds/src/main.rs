@@ -29,6 +29,7 @@ fn main() {
     for _ in 0..num_sims {
         // TODO optionally get a partial board from args
         let board = pick_random_board(&all_hole_cards);
+        assert!(board.len() == BOARD_SIZE);
         let mut hands = Vec::with_capacity(all_hole_cards.len());
         for hole_cards in &all_hole_cards {
             let mut cards: Vec<Card> = Vec::with_capacity(hole_cards.len() + board.len());
@@ -39,6 +40,7 @@ fn main() {
             let hand = Hand::best_hand_of(&cards);
             hands.push(hand);
         }
+        assert!(hands.len() == all_hole_cards.len());
 
         let mut winners = Vec::new();
         winners.push(0);
@@ -158,7 +160,7 @@ fn insert_outcome(outcomes: &mut HashMap<Vec<i32>, HandStats>, winners: &Vec<i32
 
 const BOARD_SIZE: usize = 5;
 fn pick_random_board(all_hole_cards: &[[Card; 2]]) -> [Card; BOARD_SIZE] {
-    let mut board = [Card{rank: Rank::Ace, suit: Suit::Spades}; BOARD_SIZE]; // Dummies
+    let mut board = [card(Ace, Spades); BOARD_SIZE]; // Dummies
 
     let mut used_indexes: Vec<u8> = Vec::with_capacity(all_hole_cards.len() + BOARD_SIZE);
     used_indexes.extend(
