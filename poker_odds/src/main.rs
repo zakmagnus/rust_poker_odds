@@ -61,7 +61,7 @@ fn main() {
     for (outcome, stats) in outcomes {
         let total_events = stats.total_events();
         let outcome_percent = (total_events as f64 / num_sims as f64) * 100f64;
-        let outcome_name = name_outcome(&outcome);
+        let outcome_name = name_outcome(&outcome, &all_hole_cards);
         println!("{} ({} times, {}%)", outcome_name, total_events, outcome_percent);
         //TODO sort the hands by %
         for hand_index in 0..NUM_HANDS {
@@ -207,9 +207,10 @@ impl HandStats {
     }
 }
 
-fn name_outcome(outcome: &Vec<i32>) -> String {
+fn name_outcome(outcome: &Vec<i32>, all_hole_cards: &[[Card; 2]]) -> String {
     if outcome.len() == 1 {
-        return format!("Hand {} wins", outcome[0]);
+        let hand_index = outcome[0];
+        return format!("Hand {} {:?} wins", outcome[0], all_hole_cards[hand_index as usize]);
     }
     if outcome.len() > 0 {
         return format!("Chop between hands {}", vec_to_string(outcome));
