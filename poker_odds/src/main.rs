@@ -58,13 +58,18 @@ fn main() {
         insert_outcome(&mut outcomes, &winners, &best_hand);
     }
 
-    for (outcome, stats) in outcomes {
+    let sorted_outcomes = sort_descending(
+        outcomes.iter().map(|(outcome, stats)| (outcome.clone(), stats.total_events())).collect());
+
+    for outcome in sorted_outcomes {
+        let stats = outcomes.get(&outcome).unwrap();
         let total_events = stats.total_events();
         let outcome_percent = (total_events as f64 / num_sims as f64) * 100f64;
         let outcome_name = name_outcome(&outcome, &all_hole_cards);
         println!("{} ({} times, {}%)", outcome_name, total_events, outcome_percent);
-        //TODO sort the hands by %
-        for hand_index in 0..NUM_HANDS {
+        let sorted_hand_indices = sort_descending(
+            (0..NUM_HANDS).map(|index| (index, stats.events[index])).collect());
+        for hand_index in sorted_hand_indices {
             let hand_events = stats.events[hand_index];
             if hand_events == 0 {
                 continue;
@@ -73,7 +78,12 @@ fn main() {
             println!("\t{}: {} times, {}%", Hand::name_hand_index(hand_index), hand_events, hand_percent);
         }
     }
-    //TODO sort the outcomes by %
+}
+
+fn sort_descending<T: Clone>(mut items: Vec<(T, i32)>) -> Vec<T> {
+    // Switch the order to get greatest-first.
+    items.sort_by(|&(_, first), &(_, second)| second.cmp(&first));
+    items.iter().map(|&(ref item, _)| item.clone()).collect()
 }
 
 const HOLE_CARDS_ARG: &'static str = "h";
