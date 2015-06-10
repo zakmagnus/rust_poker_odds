@@ -5,6 +5,7 @@ extern crate poker_hands;
 
 use std::env;
 use std::collections::HashMap;
+use std::str::FromStr;
 use getopts::{Options, Matches, HasArg, Occur};
 use rand::{thread_rng, Rng};
 
@@ -21,7 +22,8 @@ fn main() {
         Err(error) => panic!("Could not parse {:?}; error: {:?}", args, error)
     };
 
-    let num_sims = 10 * 1000; // TODO optionally get from args
+    let num_sims = get_num_sims(&arg_matches);
+    println!("Simulating {} hands", num_sims);
     let all_hole_cards = get_hole_cards(&arg_matches);
 
     let mut outcomes = HashMap::new();
@@ -87,10 +89,12 @@ fn sort_descending<T: Clone>(mut items: Vec<(T, i32)>) -> Vec<T> {
 }
 
 const HOLE_CARDS_ARG: &'static str = "h";
+const NUM_SIMS_ARG: &'static str = "n";
 fn create_opts() -> Options {
     // Unfortunately, there doesn't seem to be a way to require that an option appears at least once.
     let mut opts = Options::new();
     opts.opt(HOLE_CARDS_ARG, "hole cards", "A single player's hole cards", "XxYy", HasArg::Yes, Occur::Multi);
+    opts.opt(NUM_SIMS_ARG, "number of simulations", "The number of hands to simulate in order to approximate the true distribution.", "n", HasArg::Yes, Occur::Optional);
     opts
 }
 
@@ -104,6 +108,22 @@ fn get_hole_cards(matches: &Matches) -> Vec<[Card; 2]> {
         all_hole_cards.push([hole_cards[0], hole_cards[1]]);
     }
     all_hole_cards
+}
+
+const DEFAULT_NUM_SIMS: i32 = 10 * 1000;
+fn get_num_sims(matches: &Matches) -> i32 {
+    if !matches.opt_present(NUM_SIMS_ARG) {
+        return DEFAULT_NUM_SIMS;
+    }
+    let num_sims_str = matches.opts_str(&[NUM_SIMS_ARG.to_string()]).unwrap();
+    let num_sims_maybe: Result<i32, _> = FromStr::from_str(&num_sims_str);
+    match num_sims_maybe {
+        Ok(num_sims) => num_sims,
+        Err(_) => {
+            println!("Could not parse {} arg as a number: {}; ignoring it.", NUM_SIMS_ARG, num_sims_str);
+            DEFAULT_NUM_SIMS
+        }
+    }
 }
 
 fn parse_cards_string(cards_string: &str) -> Vec<Card> {
