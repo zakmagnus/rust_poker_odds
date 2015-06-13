@@ -218,12 +218,13 @@ fn pick_random_board(initial_board: &[Card], all_hole_cards: &[[Card; 2]]) -> [C
     }
 
     let mut used_indexes: Vec<u8> = Vec::with_capacity(all_hole_cards.len() + BOARD_SIZE);
+    let card_to_index = |card: &Card| (*card).into();
     used_indexes.extend(
-        initial_board.iter().map(|card| (*card).into() ));
+        initial_board.iter().map(&card_to_index));
     used_indexes.extend(
         all_hole_cards.iter().
         flat_map(|cards| cards). // Flatten all hands into one iterator
-        map(|card| (*card).into() ));
+        map(&card_to_index));
 
     let mut board_index = initial_board.len();
     let mut rng = rand::thread_rng();
