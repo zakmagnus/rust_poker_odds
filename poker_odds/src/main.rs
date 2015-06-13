@@ -243,15 +243,15 @@ fn name_outcome(outcome: &Vec<i32>, all_hole_cards: &[[Card; 2]]) -> String {
         return format!("Hand {} {:?} wins", outcome[0], all_hole_cards[hand_index as usize]);
     }
     if outcome.len() > 0 {
-        return format!("Chop between hands {}", vec_to_string(outcome));
+        return format!("Chop between hands {}", hands_to_string(all_hole_cards, &outcome));
     }
     panic!("Empty outcome")
 }
 
-fn vec_to_string(vec: &Vec<i32>) -> String {
-    let mut string = format!("{}", vec[0]);
-    for index in 1..vec.len() {
-        string = string + &format!(", {}", vec[index]);
+fn hands_to_string(hands: &[[Card; 2]], indices: &[i32]) -> String {
+    let mut string = format!("{:?}", hands[indices[0 as usize] as usize]);
+    for index in 1..indices.len() {
+        string = string + &format!(", {:?}", hands[indices[index as usize] as usize]);
     }
     string
 }
