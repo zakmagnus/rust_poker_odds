@@ -22,10 +22,17 @@ fn main() {
         Err(error) => panic!("Could not parse {:?}; error: {:?}", args, error)
     };
 
-    let num_sims = get_num_sims(&arg_matches);
-    println!("Simulating {} hands", num_sims);
-    let all_hole_cards = get_hole_cards(&arg_matches);
     let initial_board = get_initial_board(&arg_matches);
+    let num_sims = 
+    if initial_board.len() == BOARD_SIZE {
+        println!("The given board is full, so there's no uncertainty.");
+        1
+    } else {
+        get_num_sims(&arg_matches)
+    };
+    let all_hole_cards = get_hole_cards(&arg_matches);
+
+    println!("Simulating {} hands", num_sims);
     if initial_board.len() > 0 {
         println!("For board {:?}", initial_board);
     }
@@ -109,7 +116,7 @@ fn get_initial_board(matches: &Matches) -> Vec<Card> {
     }
     let board_string = matches.opt_str(&BOARD_ARG).unwrap();
     let initial_board = parse_cards_string(&board_string);
-    assert!(initial_board.len() <= 5, "Initial board has more than 5 cards! {}", board_string);
+    assert!(initial_board.len() <= BOARD_SIZE, "Initial board has more than {} cards! {}", BOARD_SIZE, board_string);
     initial_board
 }
 
