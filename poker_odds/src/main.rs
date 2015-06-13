@@ -25,12 +25,15 @@ fn main() {
     let num_sims = get_num_sims(&arg_matches);
     println!("Simulating {} hands", num_sims);
     let all_hole_cards = get_hole_cards(&arg_matches);
+    let initial_board = get_initial_board(&arg_matches);
+    if initial_board.len() > 0 {
+        println!("For board {:?}", initial_board);
+    }
 
     let mut outcomes = HashMap::new();
     // TODO try doing this in parallel!
     for _ in 0..num_sims {
-        // TODO optionally get a partial board from args
-        let board = pick_random_board(&all_hole_cards);
+        let board = pick_random_board(&initial_board, &all_hole_cards);
         assert!(board.len() == BOARD_SIZE);
         let mut hands = Vec::with_capacity(all_hole_cards.len());
         for hole_cards in &all_hole_cards {
@@ -90,12 +93,24 @@ fn sort_descending<T: Clone>(mut items: Vec<(T, i32)>) -> Vec<T> {
 
 const HOLE_CARDS_ARG: &'static str = "h";
 const NUM_SIMS_ARG: &'static str = "n";
+const BOARD_ARG: &'static str = "b";
 fn create_opts() -> Options {
     // Unfortunately, there doesn't seem to be a way to require that an option appears at least once.
     let mut opts = Options::new();
     opts.opt(HOLE_CARDS_ARG, "hole cards", "A single player's hole cards", "XxYy", HasArg::Yes, Occur::Multi);
     opts.opt(NUM_SIMS_ARG, "number of simulations", "The number of hands to simulate in order to approximate the true distribution.", "n", HasArg::Yes, Occur::Optional);
+    opts.opt(BOARD_ARG, "board cards", "The cards already on the board.", "XxYyZz", HasArg::Yes, Occur::Optional);
     opts
+}
+
+fn get_initial_board(matches: &Matches) -> Vec<Card> {
+    if !matches.opt_present(BOARD_ARG) {
+        return Vec::new();
+    }
+    let board_string = matches.opt_str(&BOARD_ARG).unwrap();
+    let initial_board = parse_cards_string(&board_string);
+    assert!(initial_board.len() <= 5, "Initial board has more than 5 cards! {}", board_string);
+    initial_board
 }
 
 fn get_hole_cards(matches: &Matches) -> Vec<[Card; 2]> {
@@ -115,7 +130,7 @@ fn get_num_sims(matches: &Matches) -> i32 {
     if !matches.opt_present(NUM_SIMS_ARG) {
         return DEFAULT_NUM_SIMS;
     }
-    let num_sims_str = matches.opts_str(&[NUM_SIMS_ARG.to_string()]).unwrap();
+    let num_sims_str = matches.opt_str(&NUM_SIMS_ARG).unwrap();
     let num_sims_maybe: Result<i32, _> = FromStr::from_str(&num_sims_str);
     match num_sims_maybe {
         Ok(num_sims) => num_sims,
@@ -189,16 +204,21 @@ fn insert_outcome(outcomes: &mut HashMap<Vec<i32>, HandStats>, winners: &Vec<i32
 }
 
 const BOARD_SIZE: usize = 5;
-fn pick_random_board(all_hole_cards: &[[Card; 2]]) -> [Card; BOARD_SIZE] {
+fn pick_random_board(initial_board: &[Card], all_hole_cards: &[[Card; 2]]) -> [Card; BOARD_SIZE] {
     let mut board = [card(Ace, Spades); BOARD_SIZE]; // Dummies
+    for index in 0..initial_board.len() {
+        board[index] = initial_board[index];
+    }
 
     let mut used_indexes: Vec<u8> = Vec::with_capacity(all_hole_cards.len() + BOARD_SIZE);
+    used_indexes.extend(
+        initial_board.iter().map(|card| (*card).into() ));
     used_indexes.extend(
         all_hole_cards.iter().
         flat_map(|cards| cards). // Flatten all hands into one iterator
         map(|card| (*card).into() ));
 
-    let mut board_index = 0;
+    let mut board_index = initial_board.len();
     let mut rng = rand::thread_rng();
     while board_index < BOARD_SIZE {
         /*
