@@ -276,7 +276,7 @@ fn name_outcome(outcome: &Vec<i32>, all_hole_cards: &[[Card; 2]]) -> String {
 }
 
 fn hands_to_string(hands: &[[Card; 2]], indices: &[i32]) -> String {
-    let mut string = format!("{:?}", hands[indices[0 as usize] as usize]);
+    let mut string = format!("{:?}", hands[indices[0] as usize]);
     for index in 1..indices.len() {
         string = string + &format!(", {:?}", hands[indices[index as usize] as usize]);
     }
