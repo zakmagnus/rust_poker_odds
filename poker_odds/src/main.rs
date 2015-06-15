@@ -23,7 +23,7 @@ fn main() {
     };
 
     let initial_board = get_initial_board(&arg_matches);
-    let num_sims = 
+    let total_num_sims =
     if initial_board.len() == BOARD_SIZE {
         println!("The given board is full, so there's no uncertainty.");
         1
@@ -32,14 +32,21 @@ fn main() {
     };
     let all_hole_cards = get_hole_cards(&arg_matches);
 
-    println!("Simulating {} hands", num_sims);
+    println!("Simulating {} hands", total_num_sims);
     if initial_board.len() > 0 {
         println!("For board {:?}", initial_board);
     }
 
+    // TODO get a number of threads from command line
+    let num_threads = 1;
     let mut outcomes = HashMap::new();
-    // TODO try doing this in parallel!
-    simulate_hands(num_sims, &initial_board, &all_hole_cards, &mut outcomes);
+    // TODO put a mutex (?) on the outcomes
+    // TODO kick off the threads in parallel with their individual num_simses and the common mutexed outcomes
+    for thread_index in 0..num_threads {
+        let this_num_sims = get_num_sims_for_thread(total_num_sims, num_threads, thread_index);
+        simulate_hands(this_num_sims, &initial_board, &all_hole_cards, &mut outcomes);
+    }
+    // TODO wait for all the threads to finish
 
     let sorted_outcomes = sort_descending(
         outcomes.iter().map(|(outcome, stats)| (outcome.clone(), stats.total_events())).collect());
@@ -47,7 +54,7 @@ fn main() {
     for outcome in sorted_outcomes {
         let stats = outcomes.get(&outcome).unwrap();
         let total_events = stats.total_events();
-        let outcome_percent = (total_events as f64 / num_sims as f64) * 100f64;
+        let outcome_percent = (total_events as f64 / total_num_sims as f64) * 100f64;
         let outcome_name = name_outcome(&outcome, &all_hole_cards);
         println!("{} ({} times, {}%)", outcome_name, total_events, outcome_percent);
         let sorted_hand_indices = sort_descending(
@@ -248,6 +255,19 @@ fn pick_random_board(initial_board: &[Card], all_hole_cards: &[[Card; 2]]) -> [C
         board_index += 1;
     }
     board
+}
+
+fn get_num_sims_for_thread(total_num_sims: i32, total_num_threads: i32, thread_index: i32) -> i32 {
+    assert!(total_num_threads > thread_index);
+    let base_num_sims = total_num_sims / total_num_threads;
+    let threads_with_extra = total_num_sims % total_num_threads;
+    let this_threads_extra =
+        if thread_index < threads_with_extra {
+            1
+        } else {
+            0
+        };
+    base_num_sims + this_threads_extra
 }
 
 struct HandStats {
