@@ -6,6 +6,8 @@ extern crate poker_hands;
 use std::env;
 use std::collections::HashMap;
 use std::str::FromStr;
+use std::thread;
+use std::sync::*;
 use getopts::{Options, Matches, HasArg, Occur};
 use rand::{thread_rng, Rng};
 
@@ -36,26 +38,40 @@ fn main() {
     if initial_board.len() > 0 {
         println!("For board {:?}", initial_board);
     }
+    let board_ref = Arc::new(initial_board);
+    let hole_cards_ref = Arc::new(all_hole_cards);
 
     // TODO get a number of threads from command line
-    let num_threads = 1;
-    let mut outcomes = HashMap::new();
-    // TODO put a mutex (?) on the outcomes
-    // TODO kick off the threads in parallel with their individual num_simses and the common mutexed outcomes
+    let num_threads = 4;
+    let outcomes = Arc::new(Mutex::new(HashMap::new()));
+    let mut children = Vec::with_capacity(num_threads);
     for thread_index in 0..num_threads {
-        let this_num_sims = get_num_sims_for_thread(total_num_sims, num_threads, thread_index);
-        simulate_hands(this_num_sims, &initial_board, &all_hole_cards, &mut outcomes);
+        let this_num_sims = get_num_sims_for_thread(total_num_sims, num_threads as i32, thread_index as i32);
+        let this_board_ref = board_ref.clone();
+        let this_hole_cards_ref = hole_cards_ref.clone();
+        let this_outcomes = outcomes.clone();
+        let child_thread = thread::spawn(move || {
+                simulate_hands(this_num_sims, &this_board_ref, &this_hole_cards_ref, &this_outcomes)
+        });
+        children.push(child_thread);
     }
-    // TODO wait for all the threads to finish
+    for child_thread in children {
+        match child_thread.join() {
+            Ok(_) => continue,
+            Err(e) => panic!("Worker thread died! {:?}", e)
+        }
+    }
+
+    let final_outcomes = outcomes.lock().unwrap();
 
     let sorted_outcomes = sort_descending(
-        outcomes.iter().map(|(outcome, stats)| (outcome.clone(), stats.total_events())).collect());
+        final_outcomes.iter().map(|(outcome, stats)| (outcome.clone(), stats.total_events())).collect());
 
     for outcome in sorted_outcomes {
-        let stats = outcomes.get(&outcome).unwrap();
+        let stats = final_outcomes.get(&outcome).unwrap();
         let total_events = stats.total_events();
         let outcome_percent = (total_events as f64 / total_num_sims as f64) * 100f64;
-        let outcome_name = name_outcome(&outcome, &all_hole_cards);
+        let outcome_name = name_outcome(&outcome, &hole_cards_ref);
         println!("{} ({} times, {}%)", outcome_name, total_events, outcome_percent);
         let sorted_hand_indices = sort_descending(
             (0..NUM_HANDS).map(|index| (index, stats.events[index])).collect());
@@ -70,7 +86,7 @@ fn main() {
     }
 }
 
-fn simulate_hands(num_sims: i32, initial_board: &[Card], all_hole_cards: &[[Card; 2]], outcomes: &mut HashMap<Vec<i32>, HandStats>) {
+fn simulate_hands(num_sims: i32, initial_board: &[Card], all_hole_cards: &[[Card; 2]], outcomes: &Mutex<HashMap<Vec<i32>, HandStats>>) {
     for _ in 0..num_sims {
         let board = pick_random_board(initial_board, all_hole_cards);
         assert!(board.len() == BOARD_SIZE);
@@ -99,7 +115,7 @@ fn simulate_hands(num_sims: i32, initial_board: &[Card], all_hole_cards: &[[Card
                 best_hand = hand;
             }
         }
-        insert_outcome(outcomes, &winners, &best_hand);
+        insert_outcome(&mut outcomes.lock().unwrap(), &winners, &best_hand);
     }
 }
 
