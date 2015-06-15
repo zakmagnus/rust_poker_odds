@@ -39,11 +39,36 @@ fn main() {
 
     let mut outcomes = HashMap::new();
     // TODO try doing this in parallel!
+    simulate_hands(num_sims, &initial_board, &all_hole_cards, &mut outcomes);
+
+    let sorted_outcomes = sort_descending(
+        outcomes.iter().map(|(outcome, stats)| (outcome.clone(), stats.total_events())).collect());
+
+    for outcome in sorted_outcomes {
+        let stats = outcomes.get(&outcome).unwrap();
+        let total_events = stats.total_events();
+        let outcome_percent = (total_events as f64 / num_sims as f64) * 100f64;
+        let outcome_name = name_outcome(&outcome, &all_hole_cards);
+        println!("{} ({} times, {}%)", outcome_name, total_events, outcome_percent);
+        let sorted_hand_indices = sort_descending(
+            (0..NUM_HANDS).map(|index| (index, stats.events[index])).collect());
+        for hand_index in sorted_hand_indices {
+            let hand_events = stats.events[hand_index];
+            if hand_events == 0 {
+                continue;
+            }
+            let hand_percent = (hand_events as f64 / total_events as f64) * 100f64;
+            println!("\t{}: {} times, {}%", Hand::name_hand_index(hand_index), hand_events, hand_percent);
+        }
+    }
+}
+
+fn simulate_hands(num_sims: i32, initial_board: &[Card], all_hole_cards: &[[Card; 2]], outcomes: &mut HashMap<Vec<i32>, HandStats>) {
     for _ in 0..num_sims {
-        let board = pick_random_board(&initial_board, &all_hole_cards);
+        let board = pick_random_board(initial_board, all_hole_cards);
         assert!(board.len() == BOARD_SIZE);
         let mut hands = Vec::with_capacity(all_hole_cards.len());
-        for hole_cards in &all_hole_cards {
+        for hole_cards in all_hole_cards {
             let mut cards: Vec<Card> = Vec::with_capacity(hole_cards.len() + board.len());
             cards.extend(board.iter().cloned());
             cards.extend(hole_cards.iter().cloned());
@@ -67,28 +92,7 @@ fn main() {
                 best_hand = hand;
             }
         }
-        insert_outcome(&mut outcomes, &winners, &best_hand);
-    }
-
-    let sorted_outcomes = sort_descending(
-        outcomes.iter().map(|(outcome, stats)| (outcome.clone(), stats.total_events())).collect());
-
-    for outcome in sorted_outcomes {
-        let stats = outcomes.get(&outcome).unwrap();
-        let total_events = stats.total_events();
-        let outcome_percent = (total_events as f64 / num_sims as f64) * 100f64;
-        let outcome_name = name_outcome(&outcome, &all_hole_cards);
-        println!("{} ({} times, {}%)", outcome_name, total_events, outcome_percent);
-        let sorted_hand_indices = sort_descending(
-            (0..NUM_HANDS).map(|index| (index, stats.events[index])).collect());
-        for hand_index in sorted_hand_indices {
-            let hand_events = stats.events[hand_index];
-            if hand_events == 0 {
-                continue;
-            }
-            let hand_percent = (hand_events as f64 / total_events as f64) * 100f64;
-            println!("\t{}: {} times, {}%", Hand::name_hand_index(hand_index), hand_events, hand_percent);
-        }
+        insert_outcome(outcomes, &winners, &best_hand);
     }
 }
 
