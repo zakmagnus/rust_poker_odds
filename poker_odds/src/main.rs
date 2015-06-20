@@ -1,5 +1,6 @@
 extern crate rand;
 extern crate getopts;
+extern crate num_cpus;
 extern crate cards;
 extern crate poker_hands;
 
@@ -33,18 +34,18 @@ fn main() {
         get_num_sims(&arg_matches)
     };
     let all_hole_cards = get_hole_cards(&arg_matches);
+    let num_threads = get_num_threads(&arg_matches);
 
     println!("Simulating {} hands", total_num_sims);
     if initial_board.len() > 0 {
         println!("For board {:?}", initial_board);
     }
+    println!("Using {} threads", num_threads);
     let board_ref = Arc::new(initial_board);
     let hole_cards_ref = Arc::new(all_hole_cards);
 
-    // TODO get a number of threads from command line
-    let num_threads = 4;
     let outcomes = Arc::new(Mutex::new(HashMap::new()));
-    let mut children = Vec::with_capacity(num_threads);
+    let mut children = Vec::with_capacity(num_threads as usize);
     for thread_index in 0..num_threads {
         let this_num_sims = get_num_sims_for_thread(total_num_sims, num_threads as i32, thread_index as i32);
         let this_board_ref = board_ref.clone();
@@ -127,12 +128,14 @@ fn sort_descending<T: Clone>(mut items: Vec<(T, i32)>) -> Vec<T> {
 
 const HOLE_CARDS_ARG: &'static str = "h";
 const NUM_SIMS_ARG: &'static str = "n";
+const NUM_THREADS_ARG: &'static str = "t";
 const BOARD_ARG: &'static str = "b";
 fn create_opts() -> Options {
     // Unfortunately, there doesn't seem to be a way to require that an option appears at least once.
     let mut opts = Options::new();
     opts.opt(HOLE_CARDS_ARG, "hole cards", "A single player's hole cards", "XxYy", HasArg::Yes, Occur::Multi);
     opts.opt(NUM_SIMS_ARG, "number of simulations", "The number of hands to simulate in order to approximate the true distribution.", "n", HasArg::Yes, Occur::Optional);
+    opts.opt(NUM_THREADS_ARG, "number of threads to use", "The number of threads to use simultaneously to run the simulations.", "t", HasArg::Yes, Occur::Optional);
     opts.opt(BOARD_ARG, "board cards", "The cards already on the board.", "XxYyZz", HasArg::Yes, Occur::Optional);
     opts
 }
@@ -161,16 +164,24 @@ fn get_hole_cards(matches: &Matches) -> Vec<[Card; 2]> {
 
 const DEFAULT_NUM_SIMS: i32 = 10 * 1000;
 fn get_num_sims(matches: &Matches) -> i32 {
-    if !matches.opt_present(NUM_SIMS_ARG) {
-        return DEFAULT_NUM_SIMS;
+    get_numeric_arg(matches, NUM_SIMS_ARG, DEFAULT_NUM_SIMS)
+}
+
+fn get_num_threads(matches: &Matches) -> i32 {
+    get_numeric_arg(matches, NUM_THREADS_ARG, num_cpus::get() as i32)
+}
+
+fn get_numeric_arg(matches: &Matches, arg: &str, default: i32) -> i32 {
+    if !matches.opt_present(arg) {
+        return default;
     }
-    let num_sims_str = matches.opt_str(&NUM_SIMS_ARG).unwrap();
-    let num_sims_maybe: Result<i32, _> = FromStr::from_str(&num_sims_str);
-    match num_sims_maybe {
-        Ok(num_sims) => num_sims,
+    let num_str = matches.opt_str(arg).unwrap();
+    let num_maybe: Result<i32, _> = FromStr::from_str(&num_str);
+    match num_maybe {
+        Ok(num) => num,
         Err(_) => {
-            println!("Could not parse {} arg as a number: {}; ignoring it.", NUM_SIMS_ARG, num_sims_str);
-            DEFAULT_NUM_SIMS
+            println!("Could not parse {} arg as a number: {}; ignoring it.", arg, num_str);
+            default
         }
     }
 }
